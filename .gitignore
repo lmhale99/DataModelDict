@@ -1,0 +1,10 @@
+#compiled python modules
+*.pyc
+
+#Python egg metadata for atomman
+*.egg-info/
+*.egg
+
+#Notebook checkpoints and data
+.ipynb_checkpoints/
+
