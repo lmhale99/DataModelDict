@@ -20,7 +20,7 @@ setup(name='DataModelDict',
       author='Lucas Hale',
       author_email='lucas.hale@nist.gov',
       license='NIST',
-      packages=['DataModelDict'],
+      py_modules=['DataModelDict'],
       install_requires=[
         'xmltodict'
       ],
