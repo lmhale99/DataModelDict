@@ -4,7 +4,6 @@ def readme():
     with open('README.rst') as f:
         return f.read()
     
-
 setup(name='DataModelDict',
       version='0.1',
       description='DataModelDict class for xml/json/dictionary conversions',
@@ -16,8 +15,8 @@ setup(name='DataModelDict',
         'Programming Language :: Python :: 2.7',
         'Topic :: Scientific/Engineering :: Physics'
       ],
-      keywords='json xml OrderedDict dictionary', 
-      url='git@github.com:lmhale99/iprPy.git',
+      keywords='json xml dictionary', 
+      url='git@github.com:lmhale99/DatamodelDict.git',
       author='Lucas Hale',
       author_email='lucas.hale@nist.gov',
       license='NIST',
