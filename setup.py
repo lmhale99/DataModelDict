@@ -16,7 +16,7 @@ setup(name='DataModelDict',
         'Topic :: Scientific/Engineering :: Physics'
       ],
       keywords='json xml dictionary', 
-      url='git@github.com:lmhale99/DatamodelDict.git',
+      url='git@github.com:lmhale99/DataModelDict.git',
       author='Lucas Hale',
       author_email='lucas.hale@nist.gov',
       license='NIST',

@@ -43,52 +43,66 @@ class DataModelDict(OrderedDict):
         
         Arguments:
         key -- key name for the subelement
-        Any additional keyword arguments refine the search by ensuring that the subelement contains the correct key-value pairs.
+        Any additional keyword arguments (kwargs) refine the search by ensuring that the subelement contains all the given kwarg_key-kwarg_value pairs.
         
         If no matching subelements are found, returns None.
-        If exactly one matching subelement is found, returns DataModelDict with key - subelement.
+        If exactly one matching subelement is found, returns DataModelDict as key:subelement.
         If multiple matching subelements, issues an error.
         """
-        matching = []
-        for subelement in self.iterfindall(key):
+        matchelements = []
+        
+        #iterate over list of all subelements given by key
+        for subelement in self.iterlistall(key):
             match = True
-            for skey, svalue in kwargs.iteritems():
-                for test in subelement.iterfindall(skey):
-                    if test != svalue:
-                        match = False
-                        break
-                if not match:
-                    break
-            if match:
-                matching.append(subelement)
-                
-        if len(matching) == 0:
-            return None
-        elif len(matching) == 1:
-            return DataModelDict([(key, matching[0])])
-        else:
-            raise ValueError('Unique subelement not identified.')            
-
-    def findall(self, key):
-        """Return a list of all subelements at any level with the given key name."""
-        return [val for val in self.iterfindall(key)]     
             
-    def iterfindall(self, key):
-        """Return an iterator over all recursive elements with a given key"""
+            #iterate over all key, value pairs in kwargs
+            for kwarg_key, kwarg_value in kwargs.iteritems():
+                kwarg_match = False
+                
+                #iterate over list of all values associated with kwarg_key in the subelement
+                for value in subelement.iterlistall(kwarg_key):
+                    if value == kwarg_value:
+                        kwarg_match = True
+                        break
+                
+                #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                if not kwarg_match:
+                    match = False
+                    break
+            
+            #if match is still true, add subelement to matchelements
+            if match:
+                matchelements.append(subelement)
+        
+        #Test length of matchelements
+        if len(matchelements) == 0:
+            return None
+        elif len(matchelements) == 1:
+            return DataModelDict([(key, matchelements[0])])
+        else:
+            raise ValueError('Multiple matching subelements found for key (and kwargs).')            
+
+    def iterlist(self, key):
+        """Return an iterator over value(s) in the element with key=key.  Useful if the value may or may not be a list."""
+        if key in self:
+            if isinstance(self[key], list):
+                for val in self[key]:
+                    yield val
+            else:
+                yield self[key]        
+    
+    def iterlistall(self, key):
+        """Return an iterator over value(s) for all elements and subelements with key=key."""
         return self.__gen_dict_extract(key, self)
     
-    def iterlist(self, key):
-        """Return an iterator over an element's value(s).  Useful if the element may or may not be a list of values."""
-        if isinstance(self[key], list):
-            for val in self[key]:
-                yield val
-        else:
-            yield self[key]        
-    
     def list(self, key):
-        """Return an element's value(s) as a list.  Useful if the element may or may not be a list of values."""
+        """Return a list of value(s) in the element with key=key.  Useful if the value may or may not be a list."""
         return [val for val in self.iterlist(key)]
-    
+
+    def listall(self, key):
+        """Return a list of value(s) for all elements and subelements with key=key."""
+        return [val for val in self.iterlistall(key)]   
+        
     def load(self, model, parse_float=None, parse_int=None):
         """
         Read in values from a json/xml string or file-like object.
