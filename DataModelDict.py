@@ -75,10 +75,10 @@ class DataModelDict(OrderedDict):
                 matchelements.append(subelement)
         
         #Test length of matchelements
-        if len(matchelements) == 0:
-            return None
-        elif len(matchelements) == 1:
-            return DataModelDict([(key, matchelements[0])])
+        if len(matchelements) == 1:
+            return matchelements[0]
+        elif len(matchelements) == 0:
+            raise ValueError('No matching subelements found for key (and kwargs).')
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')            
 
