@@ -39,15 +39,13 @@ class DataModelDict(OrderedDict):
 
     def find(self, key, **kwargs):
         """
-        Return a DataModelDict corresponding to a subelement given by key. Additional keyword arguments can be used to refine the search.
+        Return the value of a subelement at any level in the DataModelDict uniquely identified by key and kwarg_key-kwarg_value pairs.
         
         Arguments:
         key -- key name for the subelement
         Any additional keyword arguments (kwargs) refine the search by ensuring that the subelement contains all the given kwarg_key-kwarg_value pairs.
         
-        If no matching subelements are found, returns None.
-        If exactly one matching subelement is found, returns DataModelDict as key:subelement.
-        If multiple matching subelements, issues an error.
+        Issues an error if either no matching subelemet is found, or multiple matching subelements are found
         """
         matchelements = []
         
@@ -81,7 +79,7 @@ class DataModelDict(OrderedDict):
             raise ValueError('No matching subelements found for key (and kwargs).')
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')            
-
+            
     def iterlist(self, key):
         """Return an iterator over value(s) in the element with key=key.  Useful if the value may or may not be a list."""
         if key in self:
@@ -93,7 +91,7 @@ class DataModelDict(OrderedDict):
     
     def iterlistall(self, key):
         """Return an iterator over value(s) for all elements and subelements with key=key."""
-        return self.__gen_dict_extract(key, self)
+        return self.__gen_dict_yield(key, self)
     
     def list(self, key):
         """Return a list of value(s) in the element with key=key.  Useful if the value may or may not be a list."""
@@ -218,7 +216,7 @@ class DataModelDict(OrderedDict):
         else:
             return var
                    
-    def __gen_dict_extract(self, key, var):    
+    def __gen_dict_yield(self, key, var):    
         if hasattr(var,'iteritems'):
             for k, v in var.iteritems():
                 if k == key:
@@ -228,12 +226,12 @@ class DataModelDict(OrderedDict):
                     else:
                         yield v
                 if isinstance(v, dict):
-                    for result in self.__gen_dict_extract(key, v):
+                    for result in self.__gen_dict_yield(key, v):
                         yield result
                 elif isinstance(v, list):
                     for d in v:
-                        for result in self.__gen_dict_extract(key, d):
-                            yield result                      
+                        for result in self.__gen_dict_yield(key, d):
+                            yield result     
     
     def key_to_html(self, key):
         """Return a new DataModelDict where all recursive elements with a given key are converted to strings (useful when html included in xml)."""
