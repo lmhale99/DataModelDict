@@ -179,8 +179,8 @@ class DataModelDict(OrderedDict):
         else:
             indent = ''.join([' ' for i in xrange(indent)])
             newl = '\n'
-
-        return xmltodict.unparse(self, output=fp, pretty=True, indent=indent, newl=newl, full_document=full_document)    
+        
+        return xmltodict.unparse(self.__xml_val_unparse(self), output=fp, pretty=True, indent=indent, newl=newl, full_document=full_document)    
     
     def __xml_val_parse(self, var, parse_int, parse_float):
         """Internal method for parsing xml for converting meaningful strings to values."""
@@ -215,7 +215,21 @@ class DataModelDict(OrderedDict):
                         return var
         else:
             return var
-                   
+
+    def __xml_val_unparse(self, var):
+        """Internal method for unparsing values back to strings."""
+        if hasattr(var, 'iteritems'):
+            for k, v in var.iteritems():
+                var[k] = self.__xml_val_unparse(v)
+            return DataModelDict(var)
+        elif hasattr(var, '__iter__'):
+            for i in xrange(len(var)):
+                var[i] = self.__xml_val_unparse(var[i])
+            return var
+        else:   
+            return unicode(var)
+
+    
     def __gen_dict_yield(self, key, var):    
         if hasattr(var,'iteritems'):
             for k, v in var.iteritems():
