@@ -3,7 +3,7 @@ import json
 import xmltodict
 from copy import deepcopy
 
-class DataModelDict(OrderedDict):
+class DataModelDict(OrderedDict, object):
     """Class for handling json/xml equivalent data structures."""
     
     def __init__(self, *args, **kwargs):
@@ -25,6 +25,16 @@ class DataModelDict(OrderedDict):
                 self.update(*args, **kwargs)
         else:
             self.update(*args, **kwargs)
+
+    def text(self, key):
+        if '#text' in self[key]:
+            return self[key]['#text']
+        elif not isinstance(self[key], DataModelDict) and not isinstance(self[key], list):
+            return self[key]
+        else:
+            raise ValueError('element is not a ')
+            
+   
    
     def append(self, key, value):
         """If key not assigned, assigns key. If key assigned, appends value to the current value (and converts to list if needed)."""
@@ -37,51 +47,27 @@ class DataModelDict(OrderedDict):
         else:
             self[key] = value
 
-    def find(self, key, **kwargs):
+    def find(self, key, yes={}, no={}):
         """
-        Return the value of a subelement at any level in the DataModelDict uniquely identified by key and kwarg_key-kwarg_value pairs.
+        Return the value of a subelement at any level uniquely identified by the specified conditions. Issues an error if either no match, or multiple matches are found.
         
         Arguments:
-        key -- key name for the subelement
-        Any additional keyword arguments (kwargs) refine the search by ensuring that the subelement contains all the given kwarg_key-kwarg_value pairs.
-        
-        Issues an error if either no matching subelemet is found, or multiple matching subelements are found
+        key -- key name to search for.
+        yes -- dictionary of key-value terms which the subelement must have to be considered a match.
+        no -- dictionary of key-value terms which the subelement must not have to be considered a match.
         """
-        matchelements = []
+        matching = self.all(key, yes, no)
         
-        #iterate over list of all subelements given by key
-        for subelement in self.iterlistall(key):
-            match = True
-            
-            #iterate over all key, value pairs in kwargs
-            for kwarg_key, kwarg_value in kwargs.iteritems():
-                kwarg_match = False
-                
-                #iterate over list of all values associated with kwarg_key in the subelement
-                for value in subelement.iterlistall(kwarg_key):
-                    if value == kwarg_value:
-                        kwarg_match = True
-                        break
-                
-                #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
-                if not kwarg_match:
-                    match = False
-                    break
-            
-            #if match is still true, add subelement to matchelements
-            if match:
-                matchelements.append(subelement)
-        
-        #Test length of matchelements
-        if len(matchelements) == 1:
-            return matchelements[0]
-        elif len(matchelements) == 0:
+        #Test length of matching
+        if len(matching) == 1:
+            return matching[0]
+        elif len(matching) == 0:
             raise ValueError('No matching subelements found for key (and kwargs).')
         else:
-            raise ValueError('Multiple matching subelements found for key (and kwargs).')            
+            raise ValueError('Multiple matching subelements found for key (and kwargs).')        
             
     def iterlist(self, key):
-        """Return an iterator over value(s) in the element with key=key.  Useful if the value may or may not be a list."""
+        """Iterate over value(s) in the element with key=key.  Useful if the specified element may or may not be a list."""
         if key in self:
             if isinstance(self[key], list):
                 for val in self[key]:
@@ -89,17 +75,68 @@ class DataModelDict(OrderedDict):
             else:
                 yield self[key]        
     
-    def iterlistall(self, key):
-        """Return an iterator over value(s) for all elements and subelements with key=key."""
-        return self.__gen_dict_yield(key, self)
+    def iterall(self, key, yes={}, no={}):
+        """Iterate over value(s) of all subelements at any level identified by the specified conditions.
+        
+        Arguments:
+        key -- key name to search for.
+        yes -- dictionary of key-value terms which the subelement must have to be considered a match.
+        no -- dictionary of key-value terms which the subelement must not have to be considered a match.
+        """
+        
+        #iterate over list of all subelements given by key
+        for subelement in self.__gen_dict_yield(key, self):
+            match = True
+           
+            #iterate over all key, value pairs in yes
+            for yes_key, yes_value in yes.iteritems():
+                key_match = False
+                
+                #iterate over list of all values associated with kwarg_key in the subelement
+                for value in self.__gen_dict_yield(yes_key, subelement):
+                    if value == yes_value:
+                        key_match = True
+                        break
+                
+                #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                if not key_match:
+                    match = False
+                    break
+          
+            #iterate over all key, value pairs in no
+            if match:
+                for no_key, no_value in no.iteritems():
+                    key_match = True
+                    
+                    #iterate over list of all values associated with kwarg_key in the subelement
+                    for value in self.__gen_dict_yield(no_key, subelement):
+                        if value == no_value:
+                            key_match = False
+                            break
+                    
+                    #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                    if not key_match:
+                        match = False
+                        break
+           
+            #if match is still true, yield subelement
+            if match:
+                yield subelement
     
     def list(self, key):
-        """Return a list of value(s) in the element with key=key.  Useful if the value may or may not be a list."""
+        """Return the value(s) in the element with key=key as a list.  Useful if the specified element may or may not be a list."""
         return [val for val in self.iterlist(key)]
 
-    def listall(self, key):
-        """Return a list of value(s) for all elements and subelements with key=key."""
-        return [val for val in self.iterlistall(key)]   
+    def all(self, key, yes={}, no={}):
+        """Return the value(s) of all subelements at any level identified by the specified conditions as a list.
+        
+                
+        Arguments:
+        key -- key name to search for.
+        yes -- dictionary of key-value terms which the subelement must have to be considered a match.
+        no -- dictionary of key-value terms which the subelement must not have to be considered a match.
+        """
+        return [val for val in self.iterall(key, yes, no)]  
         
     def load(self, model, parse_float=None, parse_int=None):
         """
