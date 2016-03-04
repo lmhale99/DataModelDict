@@ -16,24 +16,46 @@ class DataModelDict(OrderedDict, object):
         """
        
         OrderedDict.__init__(self)
-        if len(args) == 1:
-            try:
-                parse_float = kwargs.get('parse_float', None)
-                parse_int = kwargs.get('parse_int', None)
-                self.load(args[0], parse_float=parse_float, parse_int=parse_int)
-            except:
-                self.update(*args, **kwargs)
+        
+        #If string or file-like object, call load
+        if len(args) == 1 and (isinstance(args[0], (str, unicode)) or hasattr(args[0], 'read')):            
+            format = kwargs.get('format', None)
+            parse_float = kwargs.get('parse_float', float)
+            parse_int = kwargs.get('parse_int', int)
+            convert_NaN = kwargs.get('convert_NaN', True) 
+            encoding = kwargs.get('encoding', 'utf-8') 
+            self.load(args[0], format = format, 
+                               parse_int = parse_int,
+                               parse_float = parse_float,                                
+                               convert_NaN = convert_NaN,
+                               encoding = encoding)
+        
+        #Otherwise, call update (from OrderedDict)
         else:
             self.update(*args, **kwargs)
-
-    def text(self, key):
-        if '#text' in self[key]:
-            return self[key]['#text']
-        elif not isinstance(self[key], DataModelDict) and not isinstance(self[key], list):
-            return self[key]
+   
+    def __getitem__(self, key):
+        if isinstance(key, list):
+            value = self
+            keys = deepcopy(key)
+            while len(keys) > 0:
+                value = value[keys.pop(0)]   
+            return value
+                
         else:
-            raise ValueError('element is not a ')
-            
+            return OrderedDict.__getitem__(self, key)
+   
+    def __setitem__(self, key, value):
+        if isinstance(key, list):
+            term = self
+            keys = deepcopy(key)
+            while len(keys) > 1:
+                term = term[keys.pop(0)]   
+            term[keys[0]] = value
+                
+        else:
+            return OrderedDict.__setitem__(self, key, value)
+   
    
    
     def append(self, key, value):
@@ -65,7 +87,33 @@ class DataModelDict(OrderedDict, object):
             raise ValueError('No matching subelements found for key (and kwargs).')
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')        
-            
+
+    def iterpaths(self, key, yes={}, no={}):
+        """Iterate over the key name paths to all subelements at any level identified by the specified conditions.
+        
+        Arguments:
+        key -- key name to search for.
+        yes -- dictionary of key-value terms which the subelement must have to be considered a match.
+        no -- dictionary of key-value terms which the subelement must not have to be considered a match.
+        """
+        
+        return self.__gen_dict_path(key, self)
+        
+    def paths(self, key, yes={}, no={}):
+        return [val for val in self.iterpaths(key, yes, no)]
+        
+    def path(self, key, yes={}, no={}):
+        
+        matching = self.paths(key, yes, no)
+        
+        #Test length of matching
+        if len(matching) == 1:
+            return matching[0]
+        elif len(matching) == 0:
+            raise ValueError('No matching subelements found for key (and kwargs).')
+        else:
+            raise ValueError('Multiple matching subelements found for key (and kwargs).')
+        
     def iterlist(self, key):
         """Iterate over value(s) in the element with key=key.  Useful if the specified element may or may not be a list."""
         if key in self:
@@ -138,7 +186,7 @@ class DataModelDict(OrderedDict, object):
         """
         return [val for val in self.iterall(key, yes, no)]  
         
-    def load(self, model, parse_float=None, parse_int=None):
+    def load(self, model, format=None, parse_int=int, parse_float=float, convert_NaN=True, encoding='utf-8'):
         """
         Read in values from a json/xml string or file-like object.
         
@@ -147,46 +195,53 @@ class DataModelDict(OrderedDict, object):
         parse_int -- data type to use for integer values parsed from the json/xml info
         """
         
-        #load from string
-        if isinstance(model, (str, unicode)):
-            
-            #try json interpreter
+        #if format is not specified, try both json and xml
+        if format is None:
             try:
-                self.update(json.loads(model, object_pairs_hook=DataModelDict, parse_int=parse_int, parse_float=parse_float))
+                self.load(model, format='json', parse_int=parse_int, parse_float=parse_float, convert_NaN=convert_NaN, encoding=encoding)
             except:
-                
-                #try xml interpreter
-                if True:
-                    if parse_float is None:
-                        parse_float = float
-                    if parse_int is None:
-                        parse_int = int
-                    hold = xmltodict.parse(model)
-                    self.update(self.__xml_val_parse(hold, parse_int, parse_float))
-                else:
-                    raise ValueError('String is not acceptable json or xml')
+                if hasattr(model, 'seek'): model.seek(0)
+                try:
+                    self.load(model, format='xml', parse_int=parse_int, parse_float=parse_float, convert_NaN=convert_NaN, encoding=encoding)
+                except:
+                    raise ValueError('Unable to parse as JSON and XML')        
         
-        #load from file
-        elif hasattr(model, 'read'):
-            #try json interpreter
-            try:
-                self.update(json.load(model, object_pairs_hook=DataModelDict, parse_int=parse_int, parse_float=parse_float))
-            except:
-                model.seek(0)
-                #try xml interpreter
-                if True:
-                    if parse_float is None:
-                        parse_float = float
-                    if parse_int is None:
-                        parse_int = int
-                    hold = xmltodict.parse(model)
-                    self.update(self.__xml_val_parse(hold, parse_int, parse_float))
-                else:
-                    raise ValueError('File is not acceptable json or xml')
+        #if format is specified to be json, only try json
+        elif format.lower() == 'json':
+            if isinstance(model, (str, unicode)):
+                self.update(json.loads(model, 
+                                       object_pairs_hook=DataModelDict, 
+                                       parse_int=parse_int, 
+                                       parse_float=parse_float, 
+                                       parse_constant=convert_NaN, 
+                                       encoding=encoding))
+            elif hasattr(model, 'read'):
+                self.update(json.load(model, 
+                                      object_pairs_hook=DataModelDict, 
+                                      parse_int=parse_int, 
+                                      parse_float=parse_float, 
+                                      parse_constant=convert_NaN, 
+                                      encoding=encoding))
+            else:
+                raise TypeError('Invalid data type for loading')
+                    
+        #if format is specified to be xml, only try xml
+        elif format.lower() == 'xml':
+            if isinstance(model, (str, unicode)) or hasattr(model, 'read'):
+                self.update(xmltodict.parse(model,
+                                            postprocessor=self.__xml_postprocessor(parse_int, parse_float, convert_NaN),
+                                            #self.__xml_postprocessor(parse_int = parse_int, 
+                                            #                                         parse_float = parse_float, 
+                                            #                                         convert_NaN = convert_NaN), 
+                                            dict_constructor = DataModelDict,
+                                            encoding = encoding))
+            else:
+                raise TypeError('Invalid data type for loading')
+            
         else:
-            raise TypeError('Can only load json/xml strings or file-like objects')
-    
-    def json(self, fp=None, indent=None, separators=(', ', ': ')):
+            raise ValueError("Invalid format. Only 'json', 'xml', or None values supported.")                    
+        
+    def json(self, fp=None, indent=None, separators=(', ', ': '), convert_NaN=True, encoding='utf-8'):
         """
         Return the DataModelDict in json format.
         
@@ -197,11 +252,20 @@ class DataModelDict(OrderedDict, object):
         """
         
         if fp is None:
-            return json.dumps( self, indent=indent, separators=separators)
+            return json.dumps(self, 
+                              indent=indent, 
+                              separators=separators, 
+                              allow_nan=convert_NaN, 
+                              encoding=encoding)
         else:
-            json.dump(self, fp, indent=indent, separators=separators)
+            json.dump(self, 
+                      fp=fp, 
+                      indent=indent, 
+                      separators=separators, 
+                      allow_nan=convert_NaN, 
+                      encoding=encoding)
     
-    def xml(self, fp=None, indent=None, full_document=True):
+    def xml(self, fp=None, indent=None, full_document=True, convert_NaN=True, encoding='utf-8'):
         """
         Return the DataModelDict in xml format.
         
@@ -217,57 +281,82 @@ class DataModelDict(OrderedDict, object):
             indent = ''.join([' ' for i in xrange(indent)])
             newl = '\n'
         
-        return xmltodict.unparse(self.__xml_val_unparse(self), output=fp, pretty=True, indent=indent, newl=newl, full_document=full_document)    
+        return xmltodict.unparse(self, 
+                                 output=fp, 
+                                 preprocessor = self.__xml_preprocessor(convert_NaN),
+                                 pretty=True, 
+                                 indent=indent, 
+                                 newl=newl, 
+                                 full_document=full_document, 
+                                 encoding='utf-8')    
     
-    def __xml_val_parse(self, var, parse_int, parse_float):
-        """Internal method for parsing xml for converting meaningful strings to values."""
-        if hasattr(var, 'iteritems'):
-            for k, v in var.iteritems():
-                var[k] = self.__xml_val_parse(v, parse_int, parse_float)
-            return DataModelDict(var)
-        elif hasattr(var, '__iter__'):
-            for i in xrange(len(var)):
-                var[i] = self.__xml_val_parse(var[i], parse_int, parse_float)
-            return var
-        elif isinstance(var, (str, unicode)):   
-            if var == '':
-                return None
-            elif var == 'True' or var == 'true':
-                return True
-            elif var == 'False' or var == 'false':
-                return False
-            elif var == '-Infinity' or var == '-Inf' or var == '-inf':
-                return float('-Inf')            
-            elif var == 'Infinity' or var == 'Inf' or var == 'inf':
-                return float('Inf')            
-            elif var == 'NaN' or var == 'nan':
-                return float('NaN')
+    def __xml_postprocessor(self, parse_int, parse_float, convert_NaN):
+        """Internal method that defines the xmltodict postprocessor function to use."""
+        if convert_NaN is True:
+            parse_constant = {'':None,
+                              'true': True,
+                              'false': False,
+                              '-Infinity': float('-Inf'),
+                              'Infinity': float('Inf'),
+                              'NaN': float('NaN')}
+                              
+        elif convert_NaN is False:
+            parse_constant = {'': None,
+                              'true': True,
+                              'false': False}
+        
+        def postprocessor(path, key, value):
+            if not isinstance(value, (str, unicode)):
+                return key, value
+            if value in parse_constant:
+                return key, parse_constant[value]
+            try:
+                value = parse_int(value)
+                return key, value
+            except:
+                pass
+            try:
+                value = parse_float(value)
+                return key, value
+            except:
+                return key, value
+                    
+        return postprocessor
+    
+    def __xml_preprocessor(self, convert_NaN):
+        """Internal method that defines the xmltodict postprocessor function to use."""
+        if convert_NaN is True:
+            allow_NaN = {'None': '',
+                         'True': 'true',
+                         'False': 'false',
+                         '-inf': '-Infinity',
+                         'inf': 'Infinity',
+                         'nan': 'NaN'}
+        elif convert_NaN is False:
+            allow_NaN = {'None': '',
+                         'True': 'true',
+                         'False': 'false'}
+        
+        def preprocessor(key, value):
+            if hasattr(value, 'iteritems'):
+                for k, v in value.iteritems():
+                    value[k] = preprocessor(k,v)[1]
+                return key, value
+            elif hasattr(value, '__iter__'):
+                for i in xrange(len(value)):
+                    value[i] = preprocessor(key, value[i])[1]
+                return key, value
             else:
-                try:
-                    return parse_int(var)
-                except:
-                    try:
-                        return parse_float(var)
-                    except:
-                        return var
-        else:
-            return var
+                value = unicode(value)
+                if value in allow_NaN:
+                    return key, allow_NaN[value]
+                else:
+                    return key, value            
+            
+        return preprocessor
 
-    def __xml_val_unparse(self, var):
-        """Internal method for unparsing values back to strings."""
-        if hasattr(var, 'iteritems'):
-            for k, v in var.iteritems():
-                var[k] = self.__xml_val_unparse(v)
-            return DataModelDict(var)
-        elif hasattr(var, '__iter__'):
-            for i in xrange(len(var)):
-                var[i] = self.__xml_val_unparse(var[i])
-            return var
-        else:   
-            return unicode(var)
-
-    
-    def __gen_dict_yield(self, key, var):    
+    def __gen_dict_yield(self, key, var):   
+        """Internal method that recursively searches for all elements with a key."""
         if hasattr(var,'iteritems'):
             for k, v in var.iteritems():
                 if k == key:
@@ -283,7 +372,25 @@ class DataModelDict(OrderedDict, object):
                     for d in v:
                         for result in self.__gen_dict_yield(key, d):
                             yield result     
-    
+
+    def __gen_dict_path(self, key, var):   
+        """Internal method that recursively searches for paths to elements with a key."""
+        
+        if hasattr(var,'iteritems'):
+            for k, v in var.iteritems():
+                if k == key:
+                    yield [k]
+                if isinstance(v, dict):
+                    for result in self.__gen_dict_path(key, v):
+                        if result is not None:
+                            yield [k] + result
+                elif isinstance(v, list):
+                    for i in xrange(len(v)):
+                        for result in self.__gen_dict_path(key, v[i]):
+                            if result is not None:
+                                yield [k, i] + result
+            
+                            
     def key_to_html(self, key):
         """Return a new DataModelDict where all recursive elements with a given key are converted to strings (useful when html included in xml)."""
         return self.__gen_html(key, deepcopy(self))
