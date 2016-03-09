@@ -6,7 +6,7 @@ def readme():
     
 setup(name='DataModelDict',
       version='0.1',
-      description='DataModelDict class for xml/json/dictionary conversions',
+      description='DataModelDict class for handling xml and json based data models',
       long_description=readme(),
       classifiers=[
         'Development Status :: 3 - Alpha',
@@ -15,7 +15,7 @@ setup(name='DataModelDict',
         'Programming Language :: Python :: 2.7',
         'Topic :: Scientific/Engineering :: Physics'
       ],
-      keywords='json xml dictionary', 
+      keywords='json xml dictionary ', 
       url='git@github.com:lmhale99/DataModelDict.git',
       author='Lucas Hale',
       author_email='lucas.hale@nist.gov',

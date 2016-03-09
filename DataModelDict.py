@@ -35,6 +35,7 @@ class DataModelDict(OrderedDict, object):
             self.update(*args, **kwargs)
    
     def __getitem__(self, key):
+        """Extends OrderedDict.__getitem__() to handle path lists as keys"""
         if isinstance(key, list):
             value = self
             keys = deepcopy(key)
@@ -46,6 +47,7 @@ class DataModelDict(OrderedDict, object):
             return OrderedDict.__getitem__(self, key)
    
     def __setitem__(self, key, value):
+        """Extends OrderedDict.__setitem__() to handle path lists as keys"""
         if isinstance(key, list):
             term = self
             keys = deepcopy(key)
@@ -55,8 +57,6 @@ class DataModelDict(OrderedDict, object):
                 
         else:
             return OrderedDict.__setitem__(self, key, value)
-   
-   
    
     def append(self, key, value):
         """If key not assigned, assigns key. If key assigned, appends value to the current value (and converts to list if needed)."""
@@ -78,7 +78,7 @@ class DataModelDict(OrderedDict, object):
         yes -- dictionary of key-value terms which the subelement must have to be considered a match.
         no -- dictionary of key-value terms which the subelement must not have to be considered a match.
         """
-        matching = self.all(key, yes, no)
+        matching = self.finds(key, yes, no)
         
         #Test length of matching
         if len(matching) == 1:
@@ -88,22 +88,19 @@ class DataModelDict(OrderedDict, object):
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')        
 
-    def iterpaths(self, key, yes={}, no={}):
-        """Iterate over the key name paths to all subelements at any level identified by the specified conditions.
+    def aslist(self, key):
+        """Return the value(s) in the element with key=key as a list.  Useful if the specified element may or may not be a list."""
+        return [val for val in self.iteraslist(key)]
+          
+    def path(self, key, yes={}, no={}):
+        """
+        Return the path list of a subelement at any level uniquely identified by the specified conditions. Issues an error if either no match, or multiple matches are found.
         
         Arguments:
         key -- key name to search for.
         yes -- dictionary of key-value terms which the subelement must have to be considered a match.
         no -- dictionary of key-value terms which the subelement must not have to be considered a match.
         """
-        
-        return self.__gen_dict_path(key, self)
-        
-    def paths(self, key, yes={}, no={}):
-        return [val for val in self.iterpaths(key, yes, no)]
-        
-    def path(self, key, yes={}, no={}):
-        
         matching = self.paths(key, yes, no)
         
         #Test length of matching
@@ -113,8 +110,30 @@ class DataModelDict(OrderedDict, object):
             raise ValueError('No matching subelements found for key (and kwargs).')
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')
-        
-    def iterlist(self, key):
+    
+    def finds(self, key, yes={}, no={}):
+        """
+        Return a list of all values of all elements at any level identified by the specified conditions.
+               
+        Arguments:
+        key -- key name to search for.
+        yes -- dictionary of key-value terms which the subelement must have to be considered a match.
+        no -- dictionary of key-value terms which the subelement must not have to be considered a match.
+        """
+        return [val for val in self.iterfinds(key, yes, no)] 
+    
+    def paths(self, key, yes={}, no={}):
+        """
+        Return a list of all path lists of all elements at any level identified by the specified conditions.
+               
+        Arguments:
+        key -- key name to search for.
+        yes -- dictionary of key-value terms which the subelement must have to be considered a match.
+        no -- dictionary of key-value terms which the subelement must not have to be considered a match.
+        """
+        return [val for val in self.iterpaths(key, yes, no)]
+    
+    def iteraslist(self, key):
         """Iterate over value(s) in the element with key=key.  Useful if the specified element may or may not be a list."""
         if key in self:
             if isinstance(self[key], list):
@@ -123,9 +142,10 @@ class DataModelDict(OrderedDict, object):
             else:
                 yield self[key]        
     
-    def iterall(self, key, yes={}, no={}):
-        """Iterate over value(s) of all subelements at any level identified by the specified conditions.
-        
+    def iterfinds(self, key, yes={}, no={}):
+        """
+        Return an iterator over all values of all elements at any level identified by the specified conditions.
+               
         Arguments:
         key -- key name to search for.
         yes -- dictionary of key-value terms which the subelement must have to be considered a match.
@@ -133,7 +153,7 @@ class DataModelDict(OrderedDict, object):
         """
         
         #iterate over list of all subelements given by key
-        for subelement in self.__gen_dict_yield(key, self):
+        for subelement in self.__gen_dict_value(key, self):
             match = True
            
             #iterate over all key, value pairs in yes
@@ -141,7 +161,7 @@ class DataModelDict(OrderedDict, object):
                 key_match = False
                 
                 #iterate over list of all values associated with kwarg_key in the subelement
-                for value in self.__gen_dict_yield(yes_key, subelement):
+                for value in self.__gen_dict_value(yes_key, subelement):
                     if value == yes_value:
                         key_match = True
                         break
@@ -157,7 +177,7 @@ class DataModelDict(OrderedDict, object):
                     key_match = True
                     
                     #iterate over list of all values associated with kwarg_key in the subelement
-                    for value in self.__gen_dict_yield(no_key, subelement):
+                    for value in self.__gen_dict_value(no_key, subelement):
                         if value == no_value:
                             key_match = False
                             break
@@ -171,28 +191,66 @@ class DataModelDict(OrderedDict, object):
             if match:
                 yield subelement
     
-    def list(self, key):
-        """Return the value(s) in the element with key=key as a list.  Useful if the specified element may or may not be a list."""
-        return [val for val in self.iterlist(key)]
-
-    def all(self, key, yes={}, no={}):
-        """Return the value(s) of all subelements at any level identified by the specified conditions as a list.
-        
-                
+    def iterpaths(self, key, yes={}, no={}):
+        """
+        Return an iterator over all path lists of all elements at any level identified by the specified conditions.
+               
         Arguments:
         key -- key name to search for.
         yes -- dictionary of key-value terms which the subelement must have to be considered a match.
         no -- dictionary of key-value terms which the subelement must not have to be considered a match.
         """
-        return [val for val in self.iterall(key, yes, no)]  
         
+        #iterate over list of all subelements given by key
+        for path in self.__gen_dict_path(key, self):
+            subelement = self[path]
+            match = True
+           
+            #iterate over all key, value pairs in yes
+            for yes_key, yes_value in yes.iteritems():
+                key_match = False
+                
+                #iterate over list of all values associated with kwarg_key in the subelement
+                for value in self.__gen_dict_value(yes_key, subelement):
+                    if value == yes_value:
+                        key_match = True
+                        break
+                
+                #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                if not key_match:
+                    match = False
+                    break
+          
+            #iterate over all key, value pairs in no
+            if match:
+                for no_key, no_value in no.iteritems():
+                    key_match = True
+                    
+                    #iterate over list of all values associated with kwarg_key in the subelement
+                    for value in self.__gen_dict_value(no_key, subelement):
+                        if value == no_value:
+                            key_match = False
+                            break
+                    
+                    #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                    if not key_match:
+                        match = False
+                        break
+           
+            #if match is still true, yield path
+            if match:
+                yield path
+    
     def load(self, model, format=None, parse_int=int, parse_float=float, convert_NaN=True, encoding='utf-8'):
         """
         Read in values from a json/xml string or file-like object.
         
-        Keyword Arguments:
-        parse_float -- data type to use for floating point values parsed from the json/xml info
-        parse_int -- data type to use for integer values parsed from the json/xml info
+        Keyword Arguments (all optional):
+        format -- explicitly state file is 'json' or 'xml'.  If format is None, will try both (but provide less details if load fails).  
+        parse_float -- data type to use for floating point values parsed from the json/xml info.
+        parse_int -- data type to use for integer values parsed from the json/xml info.
+        convert_NaN -- boolean indicating if NaN, Infinity, and -Infinity are interpreted if found. Default is True.
+        encoding -- encoding style of file being read. Default assumes unicode 'utf-8'. May have issues if not ASCII based.
         """
         
         #if format is not specified, try both json and xml
@@ -204,7 +262,7 @@ class DataModelDict(OrderedDict, object):
                 try:
                     self.load(model, format='xml', parse_int=parse_int, parse_float=parse_float, convert_NaN=convert_NaN, encoding=encoding)
                 except:
-                    raise ValueError('Unable to parse as JSON and XML')        
+                    raise ValueError('Unable to parse as JSON or XML')        
         
         #if format is specified to be json, only try json
         elif format.lower() == 'json':
@@ -245,10 +303,12 @@ class DataModelDict(OrderedDict, object):
         """
         Return the DataModelDict in json format.
         
-        Keyword Arguments:
+        Keyword Arguments (all optional):
         fp -- file-like object.  If given, the json will be written to fp instead of returned as a string.
         indent -- int number of spaces to indent lines.  If not given, the output will be inline.
         separators --  an (item_separator, dict_separator) tuple. Default is (', ', ': ').
+        convert_NaN -- boolean indicating if javascript NaN, Infinity, and -Infinity are allowed. Default is True.
+        encoding -- encoding style for the output.
         """
         
         if fp is None:
@@ -269,11 +329,14 @@ class DataModelDict(OrderedDict, object):
         """
         Return the DataModelDict in xml format.
         
-        Keyword Arguments:
+        Keyword Arguments (all optional):
         fp -- file-like object.  If given, the xml will be written to fp instead of returned as a string.
         indent -- int number of spaces to indent lines.  If not given, the output will be inline.
-        full_document -- boolean indicating if the output is associated with a full xml model.  If True, it must have only one maximum element, and a header is added.
+        full_document -- boolean indicating if the output is associated with a full xml model.  If True, it must have only one root, and a header is added.
+        convert_NaN -- boolean indicating that strings for NaN, Infinity, and -Infinity are changed to match the javascript versions. Default is True.
+        encoding -- encoding style for the output.
         """
+
         if indent is None:
             indent = ''
             newl = ''
@@ -281,7 +344,7 @@ class DataModelDict(OrderedDict, object):
             indent = ''.join([' ' for i in xrange(indent)])
             newl = '\n'
         
-        return xmltodict.unparse(self, 
+        return xmltodict.unparse(deepcopy(self), 
                                  output=fp, 
                                  preprocessor = self.__xml_preprocessor(convert_NaN),
                                  pretty=True, 
@@ -294,16 +357,16 @@ class DataModelDict(OrderedDict, object):
         """Internal method that defines the xmltodict postprocessor function to use."""
         if convert_NaN is True:
             parse_constant = {'':None,
-                              'true': True,
-                              'false': False,
+                              'True': True,
+                              'False': False,
                               '-Infinity': float('-Inf'),
                               'Infinity': float('Inf'),
                               'NaN': float('NaN')}
                               
         elif convert_NaN is False:
             parse_constant = {'': None,
-                              'true': True,
-                              'false': False}
+                              'True': True,
+                              'False': False}
         
         def postprocessor(path, key, value):
             if not isinstance(value, (str, unicode)):
@@ -327,15 +390,15 @@ class DataModelDict(OrderedDict, object):
         """Internal method that defines the xmltodict postprocessor function to use."""
         if convert_NaN is True:
             allow_NaN = {'None': '',
-                         'True': 'true',
-                         'False': 'false',
+                         'True': 'True',
+                         'False': 'False',
                          '-inf': '-Infinity',
                          'inf': 'Infinity',
                          'nan': 'NaN'}
         elif convert_NaN is False:
             allow_NaN = {'None': '',
-                         'True': 'true',
-                         'False': 'false'}
+                         'True': 'True',
+                         'False': 'False'}
         
         def preprocessor(key, value):
             if hasattr(value, 'iteritems'):
@@ -347,7 +410,8 @@ class DataModelDict(OrderedDict, object):
                     value[i] = preprocessor(key, value[i])[1]
                 return key, value
             else:
-                value = unicode(value)
+                if not isinstance(value, (str, unicode)):
+                    value = repr(value)
                 if value in allow_NaN:
                     return key, allow_NaN[value]
                 else:
@@ -355,8 +419,9 @@ class DataModelDict(OrderedDict, object):
             
         return preprocessor
 
-    def __gen_dict_yield(self, key, var):   
-        """Internal method that recursively searches for all elements with a key."""
+    def __gen_dict_value(self, key, var):   
+        """Internal method that recursively searches and yields values for all elements with key matching key."""
+        
         if hasattr(var,'iteritems'):
             for k, v in var.iteritems():
                 if k == key:
@@ -366,20 +431,24 @@ class DataModelDict(OrderedDict, object):
                     else:
                         yield v
                 if isinstance(v, dict):
-                    for result in self.__gen_dict_yield(key, v):
+                    for result in self.__gen_dict_value(key, v):
                         yield result
                 elif isinstance(v, list):
                     for d in v:
-                        for result in self.__gen_dict_yield(key, d):
+                        for result in self.__gen_dict_value(key, d):
                             yield result     
 
     def __gen_dict_path(self, key, var):   
-        """Internal method that recursively searches for paths to elements with a key."""
+        """Internal method that recursively searches and yields path lists for all elements with key matching key."""
         
         if hasattr(var,'iteritems'):
             for k, v in var.iteritems():
                 if k == key:
-                    yield [k]
+                    if isinstance(v, list):
+                        for i in xrange(len(v)):
+                            yield [k, i]
+                    else:
+                        yield [k]
                 if isinstance(v, dict):
                     for result in self.__gen_dict_path(key, v):
                         if result is not None:
@@ -389,30 +458,3 @@ class DataModelDict(OrderedDict, object):
                         for result in self.__gen_dict_path(key, v[i]):
                             if result is not None:
                                 yield [k, i] + result
-            
-                            
-    def key_to_html(self, key):
-        """Return a new DataModelDict where all recursive elements with a given key are converted to strings (useful when html included in xml)."""
-        return self.__gen_html(key, deepcopy(self))
-    
-    def __gen_html(self, key, var):
-        if hasattr(var,'iteritems'):
-            for k, v in var.iteritems():
-                if k == key:
-                    if isinstance(v, dict):
-                        var[k] = v.xml(full_document=False)
-                    elif isinstance(v, list):
-                        for d in xrange(len(v)):
-                            var[k][d] = v[d].xml(full_document=False)
-                        var[k] = ''.join(var[k])
-                else:
-                    if isinstance(v, dict):
-                        var[k] = self.__gen_html(key, v)
-                    elif isinstance(v, list):
-                        for d in xrange(len(v)):
-                            var[k][d] = self.__gen_html(key, v[d])
-        return var    
-        
-    
-    
-    
