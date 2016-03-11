@@ -7,7 +7,7 @@ take the best aspects of JSON, XML, and Python dictionaries to allow the
 user to interact with any of these formats in the same manner.
 
 Basic examples can be equivalently found as Jupyter Notebook or webpage form in
-'DataModelDict Basics.ipynb'_ and 'DataModelDict Basics.html'_, respectively.  
+`DataModelDict Basics.ipynb`_ and `DataModelDict Basics.html`_, respectively.  
 Full documentation of the class methods can be found in Documentation.md_.
 
 .. _DataModelDict Basics.ipynb: https://github.com/lmhale99/DataModelDict/blob/master/DataModelDict%20Basics.ipynb
