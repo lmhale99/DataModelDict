@@ -1,7 +1,18 @@
+#!/usr/bin/env python
+"""Provides the DataModelDict class for creating, accessing and manipulating json/xml data structures."""
+
+#Standard Python libraries
 from collections import OrderedDict
 import json
-import xmltodict
 from copy import deepcopy
+
+#https://github.com/martinblech/xmltodict
+import xmltodict
+
+__author__ = "Lucas Hale"
+__version__ = "0.8"
+__email__ = "lucas.hale@nist.gov"
+__status__ = "Development"
 
 class DataModelDict(OrderedDict, object):
     """Class for handling json/xml equivalent data structures."""
