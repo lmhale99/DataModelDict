@@ -6,36 +6,41 @@ manipulation of JSON and XML structured data models.  It is designed to
 take the best aspects of JSON, XML, and Python dictionaries to allow the 
 user to interact with any of these formats in the same manner.
 
-Basic examples can be equivalently found as Jupyter Notebook or webpage form in
-`DataModelDict Basics.ipynb`_ and `DataModelDict Basics.html`_, respectively.  
+Basic examples can be found in the Jupyter Notebook `DataModelDict Basics.ipynb`_.
 Full documentation of the class methods can be found in Documentation.md_.
 
 .. _DataModelDict Basics.ipynb: https://github.com/lmhale99/DataModelDict/blob/master/DataModelDict%20Basics.ipynb
-.. _DataModelDict Basics.html: https://github.com/lmhale99/DataModelDict/blob/master/DataModelDict%20Basics.html
 .. _Documentation.md: https://github.com/lmhale99/DataModelDict/blob/master/Documentation.md
 
-The key features of DataModelDict so far are:
+The key features of DataModelDict (so far) are:
 
 1. It is a child of OrderedDict meaning that it has all the features one 
    would expect of a Python dictionary.
 
-2. JSON conversions use the standard Python json library, and XML conversions 
-   use the xmltodict package.  This allows both data formats to be converted, 
-   manipulated and represented in similar ways.
+2. It has built-in conversion methods for reading and writing JSON and XML.  
+   JSON conversions use the standard Python `json library`_ and XML conversions 
+   use the `xmltodict package`_.  
 
-3. Numbers and key terms (True, False, etc.) are converted from strings to 
-   appropriate Python types. 
+.. _json library: https://docs.python.org/2/library/json.html
+.. _xmltodict package: https://github.com/martinblech/xmltodict
 
-4. Recursive searching methods.
+3. Numbers (int, float) and key terms (True, False, None) are recognized and converted during parsing. 
+
+4. Methods for recusively searching the data model for specific keys and key-value pairs allow for the values 
+   and paths (as lists of indices) of elements to be easily found.
+
+5. Path lists can also be directly used to get and set values. 
+
+.. code:: python
+    
+    #These two return the exact same val.
+    val = my_model['a']['b']['c']['d'] 
+    
+    path = ['a', 'b', 'c', 'd']
+    val = my_model[path]
   
-    a. When converting to/from XML, certain elements of the model may or may 
-       not be lists depending on the specific data instance. Methods exist that 
-       allow for the treatment of these elements without knowing if they are a 
-       list or not.
-
-    b. Recursive searching methods are added to help and modify specific 
-       components of the data model without knowing where in the full model the 
-       components are located.    
+6. Additional methods for simplified handling of cases where XML does not directly map to JSON and Python 
+   dictionaries.
 
 DataModelDict works by parsing in a JSON or XML data model such that every 
 dictionary level is an instance of DataModelDict.  This allows for the conversion 
