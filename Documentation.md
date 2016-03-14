@@ -2,7 +2,7 @@
 
 DataModelDict is a lightweight Python class for easy transformation and manipulation of JSON and XML structured data models.  It is designed to take the best aspects of JSON, XML, and Python dictionaries to allow the user to interact with any of these formats in a similar and convieneint manner. This class was designed to offer tools making it easy to read, modify, create and transform tiered and branching data models.
 
-This webpage outlines the features of DataModelDict and fully documents the class methods.  Simple demonstrations can be found in the [DataModelDict Basics.ipynb Jupyter Notebook](https://github.com/lmhale99/DataModelDict/blob/master/DataModelDict%20Basics.ipynb).
+This webpage outlines the features of DataModelDict and fully documents the class methods.  Simple demonstrations can be found in the [DataModelDict Basics.ipynb Jupyter Notebook](https://github.com/usnistgov/DataModelDict/blob/master/DataModelDict%20Basics.ipynb).
 
 
 ##Class Methods
