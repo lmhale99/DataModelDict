@@ -9,8 +9,8 @@ user to interact with any of these formats in the same manner.
 Basic examples can be found in the Jupyter Notebook `DataModelDict Basics.ipynb`_.
 Full documentation of the class methods can be found in Documentation.md_.
 
-.. _DataModelDict Basics.ipynb: https://github.com/lmhale99/DataModelDict/blob/master/DataModelDict%20Basics.ipynb
-.. _Documentation.md: https://github.com/lmhale99/DataModelDict/blob/master/Documentation.md
+.. _DataModelDict Basics.ipynb: https://github.com/usnistgov/DataModelDict/blob/master/DataModelDict%20Basics.ipynb
+.. _Documentation.md: https://github.com/usnistgov/DataModelDict/blob/master/Documentation.md
 
 The key features of DataModelDict (so far) are:
 
