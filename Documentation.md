@@ -83,11 +83,11 @@ With tiered data models, it can be tedious to locate or access specific elements
 
 The arguments for all of the functions in this section are identical:
 
-- __key__ = element key name that is recursively searched for.
+- __key__: element key name that is recursively searched for.
 
-- __yes__ = dictionary of sub-element key-value pairs that must all be included in the key element in order for the element to be considered a match.
+- __yes__: dictionary of sub-element key-value pairs that must all be included in the key element in order for the element to be considered a match.
 
-- __no__ = dictionary of sub-element key-value pairs which if they are found in the key element will exclude the element from being considered a match.
+- __no__: dictionary of sub-element key-value pairs which if they are found in the key element will exclude the element from being considered a match.
 
 ####DataModelDict.finds(self, key, yes={}, no={})
 
