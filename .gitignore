@@ -5,6 +5,11 @@
 *.egg-info/
 *.egg
 
+#PyPI distribution data
+dist/
+
 #Notebook checkpoints and data
 .ipynb_checkpoints/
+
+
 
