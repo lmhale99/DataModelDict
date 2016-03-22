@@ -6,6 +6,16 @@ manipulation of JSON and XML structured data models.  It is designed to
 take the best aspects of JSON, XML, and Python dictionaries to allow the 
 user to interact with any of these formats in the same manner.
 
+The code has no requirements that limit which systems it can be used on, i.e.
+it should work on Linux, Mac and Windows computers.
+
+The latest release can be installed using pip::
+
+pip install DataModelDict
+
+The code and all documentation is hosted on GitHub and can be directly 
+downloaded at: `https://github.com/usnistgov/DataModelDict`_.  
+
 Basic examples can be found in the Jupyter Notebook `DataModelDict Basics.ipynb`_.
 Full documentation of the class methods can be found in Documentation.md_.
 
