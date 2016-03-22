@@ -14,7 +14,9 @@ The latest release can be installed using pip::
 pip install DataModelDict
 
 The code and all documentation is hosted on GitHub and can be directly 
-downloaded at: `https://github.com/usnistgov/DataModelDict`_.  
+downloaded at `https://github.com/usnistgov/DataModelDict`_.
+
+.. _https://github.com/usnistgov/DataModelDict: https://github.com/usnistgov/DataModelDict
 
 Basic examples can be found in the Jupyter Notebook `DataModelDict Basics.ipynb`_.
 Full documentation of the class methods can be found in Documentation.md_.
