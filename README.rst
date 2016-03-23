@@ -11,7 +11,7 @@ it should work on Linux, Mac and Windows computers.
 
 The latest release can be installed using pip::
 
-pip install DataModelDict
+    pip install DataModelDict
 
 The code and all documentation is hosted on GitHub and can be directly 
 downloaded at `https://github.com/usnistgov/DataModelDict`_.
