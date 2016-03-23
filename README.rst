@@ -11,18 +11,13 @@ it should work on Linux, Mac and Windows computers.
 
 The latest release can be installed using pip::
 
-pip install DataModelDict
+    pip install DataModelDict
 
 The code and all documentation is hosted on GitHub and can be directly 
 downloaded at `https://github.com/usnistgov/DataModelDict`_.
 
-.. _https://github.com/usnistgov/DataModelDict: https://github.com/usnistgov/DataModelDict
-
 Basic examples can be found in the Jupyter Notebook `DataModelDict Basics.ipynb`_.
 Full documentation of the class methods can be found in Documentation.md_.
-
-.. _DataModelDict Basics.ipynb: https://github.com/usnistgov/DataModelDict/blob/master/DataModelDict%20Basics.ipynb
-.. _Documentation.md: https://github.com/usnistgov/DataModelDict/blob/master/Documentation.md
 
 The key features of DataModelDict (so far) are:
 
@@ -32,9 +27,6 @@ The key features of DataModelDict (so far) are:
 2. It has built-in conversion methods for reading and writing JSON and XML.  
    JSON conversions use the standard Python `json library`_ and XML conversions 
    use the `xmltodict package`_.  
-
-.. _json library: https://docs.python.org/2/library/json.html
-.. _xmltodict package: https://github.com/martinblech/xmltodict
 
 3. Numbers (int, float) and key terms (True, False, None) are recognized and converted during parsing. 
 
@@ -57,3 +49,9 @@ The key features of DataModelDict (so far) are:
 DataModelDict works by parsing in a JSON or XML data model such that every 
 dictionary level is an instance of DataModelDict.  This allows for the conversion 
 and functional methods to be callable both on the full model and on subcomponents. 
+
+.. _https://github.com/usnistgov/DataModelDict: https://github.com/usnistgov/DataModelDict
+.. _DataModelDict Basics.ipynb: https://github.com/usnistgov/DataModelDict/blob/master/DataModelDict%20Basics.ipynb
+.. _Documentation.md: https://github.com/usnistgov/DataModelDict/blob/master/Documentation.md
+.. _json library: https://docs.python.org/2/library/json.html
+.. _xmltodict package: https://github.com/martinblech/xmltodict
