@@ -1,16 +1,18 @@
-#!/usr/bin/env python
 """Provides the DataModelDict class for creating, accessing and manipulating json/xml data structures."""
 
-#Standard Python libraries
-from collections import OrderedDict
+# Standard Python libraries
+from __future__ import print_function, division
+import os
 import json
 from copy import deepcopy
+from cStringIO import StringIO
+from collections import OrderedDict
 
-#https://github.com/martinblech/xmltodict
+# https://github.com/martinblech/xmltodict
 import xmltodict
 
 __author__ = "Lucas Hale"
-__version__ = "0.8"
+__version__ = "0.8.1"
 __email__ = "lucas.hale@nist.gov"
 __status__ = "Development"
 
@@ -28,8 +30,8 @@ class DataModelDict(OrderedDict, object):
        
         OrderedDict.__init__(self)
         
-        #If string or file-like object, call load
-        if len(args) == 1 and (isinstance(args[0], (str, unicode)) or hasattr(args[0], 'read')):            
+        # If string or file-like object, call load
+        if len(args) == 1 and (isinstance(args[0], (str, unicode)) or hasattr(args[0], 'read')):
             format = kwargs.get('format', None)
             parse_float = kwargs.get('parse_float', float)
             parse_int = kwargs.get('parse_int', int)
@@ -37,11 +39,11 @@ class DataModelDict(OrderedDict, object):
             encoding = kwargs.get('encoding', 'utf-8') 
             self.load(args[0], format = format, 
                                parse_int = parse_int,
-                               parse_float = parse_float,                                
+                               parse_float = parse_float,
                                convert_NaN = convert_NaN,
                                encoding = encoding)
         
-        #Otherwise, call update (from OrderedDict)
+        # Otherwise, call update (from OrderedDict)
         else:
             self.update(*args, **kwargs)
    
@@ -91,7 +93,7 @@ class DataModelDict(OrderedDict, object):
         """
         matching = self.finds(key, yes, no)
         
-        #Test length of matching
+        # Test length of matching
         if len(matching) == 1:
             return matching[0]
         elif len(matching) == 0:
@@ -114,7 +116,7 @@ class DataModelDict(OrderedDict, object):
         """
         matching = self.paths(key, yes, no)
         
-        #Test length of matching
+        # Test length of matching
         if len(matching) == 1:
             return matching[0]
         elif len(matching) == 0:
@@ -163,42 +165,42 @@ class DataModelDict(OrderedDict, object):
         no -- dictionary of key-value terms which the subelement must not have to be considered a match.
         """
         
-        #iterate over list of all subelements given by key
+        # Iterate over list of all subelements given by key
         for subelement in self.__gen_dict_value(key, self):
             match = True
            
-            #iterate over all key, value pairs in yes
+            # Iterate over all key, value pairs in yes
             for yes_key, yes_value in yes.iteritems():
                 key_match = False
                 
-                #iterate over list of all values associated with kwarg_key in the subelement
+                # Iterate over list of all values associated with kwarg_key in the subelement
                 for value in self.__gen_dict_value(yes_key, subelement):
                     if value == yes_value:
                         key_match = True
                         break
                 
-                #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                # If a kwarg_key-kwarg_value match is not found, then the subelement is not a match
                 if not key_match:
                     match = False
                     break
           
-            #iterate over all key, value pairs in no
+            # Iterate over all key, value pairs in no
             if match:
                 for no_key, no_value in no.iteritems():
                     key_match = True
                     
-                    #iterate over list of all values associated with kwarg_key in the subelement
+                    # Iterate over list of all values associated with kwarg_key in the subelement
                     for value in self.__gen_dict_value(no_key, subelement):
                         if value == no_value:
                             key_match = False
                             break
                     
-                    #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                    # If a kwarg_key-kwarg_value match is not found, then the subelement is not a match
                     if not key_match:
                         match = False
                         break
            
-            #if match is still true, yield subelement
+            # If match is still true, yield subelement
             if match:
                 yield subelement
     
@@ -212,43 +214,43 @@ class DataModelDict(OrderedDict, object):
         no -- dictionary of key-value terms which the subelement must not have to be considered a match.
         """
         
-        #iterate over list of all subelements given by key
+        # Iterate over list of all subelements given by key
         for path in self.__gen_dict_path(key, self):
             subelement = self[path]
             match = True
            
-            #iterate over all key, value pairs in yes
+            # Iterate over all key, value pairs in yes
             for yes_key, yes_value in yes.iteritems():
                 key_match = False
                 
-                #iterate over list of all values associated with kwarg_key in the subelement
+                # Iterate over list of all values associated with kwarg_key in the subelement
                 for value in self.__gen_dict_value(yes_key, subelement):
                     if value == yes_value:
                         key_match = True
                         break
                 
-                #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                # If a kwarg_key-kwarg_value match is not found, then the subelement is not a match
                 if not key_match:
                     match = False
                     break
           
-            #iterate over all key, value pairs in no
+            # Iterate over all key, value pairs in no
             if match:
                 for no_key, no_value in no.iteritems():
                     key_match = True
                     
-                    #iterate over list of all values associated with kwarg_key in the subelement
+                    # Iterate over list of all values associated with kwarg_key in the subelement
                     for value in self.__gen_dict_value(no_key, subelement):
                         if value == no_value:
                             key_match = False
                             break
                     
-                    #if a kwarg_key-kwarg_value match is not found, then the subelement is not a match
+                    # If a kwarg_key-kwarg_value match is not found, then the subelement is not a match
                     if not key_match:
                         match = False
                         break
            
-            #if match is still true, yield path
+            # If match is still true, yield path
             if match:
                 yield path
     
@@ -264,51 +266,41 @@ class DataModelDict(OrderedDict, object):
         encoding -- encoding style of file being read. Default assumes unicode 'utf-8'. May have issues if not ASCII based.
         """
         
-        #if format is not specified, try both json and xml
-        if format is None:
-            try:
-                self.load(model, format='json', parse_int=parse_int, parse_float=parse_float, convert_NaN=convert_NaN, encoding=encoding)
-            except:
-                if hasattr(model, 'seek'): model.seek(0)
-                try:
-                    self.load(model, format='xml', parse_int=parse_int, parse_float=parse_float, convert_NaN=convert_NaN, encoding=encoding)
-                except:
-                    raise ValueError('Unable to parse as JSON or XML')        
-        
-        #if format is specified to be json, only try json
-        elif format.lower() == 'json':
-            if isinstance(model, (str, unicode)):
-                self.update(json.loads(model, 
-                                       object_pairs_hook=DataModelDict, 
-                                       parse_int=parse_int, 
-                                       parse_float=parse_float, 
-                                       parse_constant=convert_NaN, 
-                                       encoding=encoding))
-            elif hasattr(model, 'read'):
+        # Read in model as file-like object if file, model string, or file path string
+        with uber_open_rmode(model) as model:
+            
+            # If format is not specified, identify from first character
+            if format is None:
+                test = ''
+                while test == '':
+                    test = model.readline().strip()
+                if test[0] == '{':
+                    format = 'json'
+                elif test[0] == '<':
+                    format = 'xml'
+                else:
+                    raise ValueError('JSON/XML content not found')
+                
+                model.seek(0)
+            
+            # Load json using json package
+            if format.lower() == 'json':
                 self.update(json.load(model, 
                                       object_pairs_hook=DataModelDict, 
                                       parse_int=parse_int, 
                                       parse_float=parse_float, 
                                       parse_constant=convert_NaN, 
                                       encoding=encoding))
-            else:
-                raise TypeError('Invalid data type for loading')
-                    
-        #if format is specified to be xml, only try xml
-        elif format.lower() == 'xml':
-            if isinstance(model, (str, unicode)) or hasattr(model, 'read'):
+                        
+            # Load xml using xmltodict package
+            elif format.lower() == 'xml':
                 self.update(xmltodict.parse(model,
                                             postprocessor=self.__xml_postprocessor(parse_int, parse_float, convert_NaN),
-                                            #self.__xml_postprocessor(parse_int = parse_int, 
-                                            #                                         parse_float = parse_float, 
-                                            #                                         convert_NaN = convert_NaN), 
                                             dict_constructor = DataModelDict,
                                             encoding = encoding))
+                
             else:
-                raise TypeError('Invalid data type for loading')
-            
-        else:
-            raise ValueError("Invalid format. Only 'json', 'xml', or None values supported.")                    
+                raise ValueError("Invalid format. Only 'json', 'xml', or None values supported.")
         
     def json(self, fp=None, indent=None, separators=(', ', ': '), convert_NaN=True, encoding='utf-8'):
         """
@@ -469,3 +461,32 @@ class DataModelDict(OrderedDict, object):
                         for result in self.__gen_dict_path(key, v[i]):
                             if result is not None:
                                 yield [k, i] + result
+                                
+class uber_open_rmode():
+    """
+    context manager class for reading data from file-like objects, file names, 
+    and data strings in the same manner.
+    """
+    
+    def __init__(self, data):
+        self.data = data
+        
+    def __enter__(self):
+
+        if hasattr(self.data, 'read'):
+            self.open_file = self.data
+            self.to_close = False
+        
+        elif os.path.isfile(self.data):
+            self.open_file = open(self.data)
+            self.to_close = True
+        
+        else:
+            self.open_file = StringIO(self.data)
+            self.to_close = True
+        
+        return self.open_file
+    
+    def __exit__(self, *args):
+        if self.to_close:
+            self.open_file.close()
