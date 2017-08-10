@@ -7,6 +7,8 @@
 
 #PyPI distribution data
 dist/
+build/
+__pycache__
 
 #Notebook checkpoints and data
 .ipynb_checkpoints/
