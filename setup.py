@@ -1,11 +1,17 @@
+import codecs
 import os
+import re
 from setuptools import setup
 
 def get_version():
-    """Reads version from VERSION file"""
-    version_file = os.path.join(os.path.dirname(__file__), 'VERSION')
-    with open(version_file) as version_f:
-        return version_f.read().strip()
+    """Gets version from main package file"""
+    main_file = os.path.join(os.path.dirname(__file__), 'DataModelDict.py')
+    main_file = codecs.open(main_file, 'r').read()
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              main_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 def readme():
     with open('README.rst') as f:

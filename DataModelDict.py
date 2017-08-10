@@ -35,16 +35,7 @@ elif sys.version_info[0] == 3:
 else:
     raise ValueError("Unsupported Python version")
 
-def get_version():
-    version_file = os.path.join(os.path.dirname(__file__), 'VERSION')
-    with open(version_file) as version_f:
-        return version_f.read().strip()
-        
-__author__ = "Lucas Hale"
-__email__ = "lucas.hale@nist.gov"
-__status__ = "Development"
-__version__ = get_version()
-
+__version__ = '0.9.2'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
