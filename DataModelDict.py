@@ -1,7 +1,4 @@
-"""
-Provides the DataModelDict class for creating, accessing and manipulating
-json/xml data structures.
-"""
+"""DataModelDict class for representing data models equivalently in Python, JSON, and XML."""
 
 # Standard Python libraries
 from __future__ import (absolute_import, print_function,
