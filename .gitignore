@@ -1,18 +1,18 @@
-#compiled python modules
+# compiled python modules
 *.pyc
 
-#Python egg metadata for atomman
+# Python egg metadata for atomman
 *.egg-info/
 *.egg
 
-#PyPI distribution data
+# PyPI distribution data
 dist/
 dist-old/
 build/
 __pycache__
 
-#Notebook checkpoints and data
+# Notebook checkpoints and data
 .ipynb_checkpoints/
 
-
-
+# Upload bash script
+upload_package.bash
