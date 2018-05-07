@@ -35,7 +35,7 @@ elif sys.version_info[0] == 3:
 else:
     raise ValueError("Unsupported Python version")
 
-__version__ = '0.9.2'
+__version__ = '0.9.3'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
@@ -713,11 +713,18 @@ class uber_open_rmode():
         self.data = data
         
     def __enter__(self):
+        
+        def isfile(data):
+            try:
+                return os.path.isfile(self.data)
+            except:
+                return False
+        
         if hasattr(self.data, 'read'):
             self.open_file = self.data
             self.to_close = False
         
-        elif os.path.isfile(self.data):
+        elif isfile(self.data):
             self.open_file = open(self.data, 'rb')
             self.to_close = True
         
