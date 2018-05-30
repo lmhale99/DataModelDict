@@ -24,7 +24,7 @@ if sys.version_info[0] == 2:
     
 # Python 3 settings
 elif sys.version_info[0] == 3:
-    stringtype = str
+    stringtype = (str, bytes)
     unicode = str
     long = int
     
@@ -35,7 +35,7 @@ elif sys.version_info[0] == 3:
 else:
     raise ValueError("Unsupported Python version")
 
-__version__ = '0.9.3'
+__version__ = '0.9.4'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
