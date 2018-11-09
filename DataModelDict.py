@@ -35,7 +35,7 @@ elif sys.version_info[0] == 3:
 else:
     raise ValueError("Unsupported Python version")
 
-__version__ = '0.9.4'
+__version__ = '0.9.5'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
@@ -480,8 +480,7 @@ class DataModelDict(OrderedDict, object):
                 self.update(json.load(model,
                                       object_pairs_hook = DataModelDict,
                                       parse_int = long,
-                                      parse_float = float,
-                                      parse_constant = True))
+                                      parse_float = float))
             
             # Load xml using xmltodict package
             elif format.lower() == 'xml':
