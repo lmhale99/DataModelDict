@@ -35,7 +35,7 @@ elif sys.version_info[0] == 3:
 else:
     raise ValueError("Unsupported Python version")
 
-__version__ = '0.9.5'
+__version__ = '0.9.6'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
@@ -66,7 +66,9 @@ class DataModelDict(OrderedDict, object):
         OrderedDict.__init__(self)
         
         # If string or file-like object, call load
-        if len(args) == 1 and (isinstance(args[0], stringtype) or hasattr(args[0], 'read')):
+        if len(args) == 1 and (isinstance(args[0], stringtype) or 
+                               hasattr(args[0], 'read') or
+                               hasattr(args[0], 'as_posix')):
             self.load(args[0], **kwargs)
         
         # Otherwise, call update (from OrderedDict)
@@ -431,6 +433,20 @@ class DataModelDict(OrderedDict, object):
             if match:
                 yield path
     
+    def itervaluepaths(self):
+        """
+        Iterates over path lists to all value elements at any level.
+        
+        Yields
+        ------
+        list of str
+            The path lists to all value subelements.
+        """
+        
+        # Iterate over list of all subelements given by key
+        for path in self.__gen_dict_valuepath(self):
+            yield path
+    
     def load(self, model, format=None):
         """
         Read in values from a json/xml string or file-like object.
@@ -701,6 +717,29 @@ class DataModelDict(OrderedDict, object):
                         for result in self.__gen_dict_path(key, v[i]):
                             if result is not None:
                                 yield [k, i] + result
+    
+    def __gen_dict_valuepath(self, var):
+        """
+        Internal method that recursively searches and yields path lists for
+        all elements with key matching key.
+        """
+        
+        if isinstance(var, dict):
+            for k, v in iteritems(var):
+                if isinstance(v, dict):
+                    for result in self.__gen_dict_valuepath(v):
+                        yield [k] + result
+                elif isinstance(v, list):
+                    for i in range(len(v)):
+                        if isinstance(v[i], dict):
+                            for result in self.__gen_dict_valuepath(v[i]):
+                                yield [k, i] + result
+                        else:
+                            yield [k]
+                            break
+                else:
+                    yield [k]
+
 
 class uber_open_rmode():
     """
