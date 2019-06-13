@@ -14,7 +14,7 @@ def get_version():
     raise RuntimeError("Unable to find version string.")
 
 def readme():
-    with open('README.rst') as f:
+    with codecs.open('README.rst', 'r', encoding='UTF-8') as f:
         return f.read()
     
 setup(name = 'DataModelDict',
