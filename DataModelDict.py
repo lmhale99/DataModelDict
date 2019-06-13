@@ -81,7 +81,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str or list
             Dictionary key.  If key is a list, then subsequent keys down the
             structure are accessed.
         
@@ -106,7 +106,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str or list
             Dictionary key.  If key is a list, then subsequent keys down the
             structure are accessed.
         """
@@ -127,7 +127,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             The dictionary key.
         value
             The value to add to the dictionary key.  If key exists, the
@@ -149,7 +149,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             Dictionary key to search for.
         yes : dict
             Key-value terms which the subelement must have to be considered a
@@ -185,7 +185,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             Dictionary key
             
         Returns
@@ -204,7 +204,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             Dictionary key to search for.
         yes : dict
             Key-value terms which the subelement must have to be considered a
@@ -240,7 +240,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             Dictionary key to search for.
         yes : dict
             Key-value terms which the subelement must have to be considered a
@@ -263,7 +263,7 @@ class DataModelDict(OrderedDict, object):
                
         Parameters
         ----------
-        key
+        key : str
             Dictionary key to search for.
         yes : dict
             Key-value terms which the subelement must have to be considered a
@@ -286,7 +286,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             Dictionary key
             
         Yields
@@ -309,7 +309,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             Dictionary key to search for.
         yes : dict
             Key-value terms which the subelement must have to be considered a
@@ -374,7 +374,7 @@ class DataModelDict(OrderedDict, object):
         
         Parameters
         ----------
-        key
+        key : str
             Dictionary key to search for.
         yes : dict
             Key-value terms which the subelement must have to be considered a
@@ -439,7 +439,7 @@ class DataModelDict(OrderedDict, object):
         
         Yields
         ------
-        list of str
+        list
             The path lists to all value subelements.
         """
         
@@ -551,7 +551,7 @@ class DataModelDict(OrderedDict, object):
         indent : int or None, optional 
             Number of spaces to indent lines.  If None (default), the content
             will be inline.
-        full_document : bool, otional
+        full_document : bool, optional
             Indicates if the output is associated with a full xml model.  If
             True (default), the content can have only one root, and a header
             is added.

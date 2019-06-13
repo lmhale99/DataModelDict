@@ -58,13 +58,13 @@ three formats:
   do reversibly handle attributes, it complicates the Python and JSON
   representations.
 
-* Embedded XML content, i.e. "text with <embed>embedded</embed>
-  content", might not be reversible:
+* Embedded XML content, i.e. “text with <embed>embedded</embed>
+  content”, might not be reversible:
 
   ..
      * If this is in a Python/JSON value, converting to XML gives
-       "text with &amp;lt;embed&amp;gt;embedded&amp;lt;/embed&amp;gt;
-       content". This is reversible.
+       “text with &amp;lt;embed&amp;gt;embedded&amp;lt;/embed&amp;gt;
+       content”. This is reversible.
 
      * If this is an XML text field, parsing to Python pulls the
        embedded elements out of the text, which is not reversible!
@@ -152,8 +152,8 @@ conflicts.
 
 * n, t, r are converted to \n, \t, and \r
 
-Any dictionary keys starting with '@' will be converted into XML
-attributes, and the dictionary key '#text' is interpreted as the text
+Any dictionary keys starting with ‘@’ will be converted into XML
+attributes, and the dictionary key ‘#text’ is interpreted as the text
 value of the element.
 
 
@@ -200,17 +200,17 @@ fields will be interpreted based on the following sequential tests:
 +------------------+----------+----------+
 | XML text         | Python 2 | Python 3 |
 +==================+==========+==========+
-| == 'True'        | True     | True     |
+| == ‘True’        | True     | True     |
 +------------------+----------+----------+
-| == 'False'       | False    | False    |
+| == ‘False’       | False    | False    |
 +------------------+----------+----------+
-| == ''            | None     | None     |
+| == ‘’            | None     | None     |
 +------------------+----------+----------+
-| == 'NaN'         | np.nan   | np.nan   |
+| == ‘NaN’         | np.nan   | np.nan   |
 +------------------+----------+----------+
-| == 'Infinity'    | np.inf   | np.inf   |
+| == ‘Infinity’    | np.inf   | np.inf   |
 +------------------+----------+----------+
-| == '-Infinity'   | -np.inf  | -np.inf  |
+| == ‘-Infinity’   | -np.inf  | -np.inf  |
 +------------------+----------+----------+
 | try: int(text)   | long     | int      |
 +------------------+----------+----------+
@@ -222,17 +222,17 @@ fields will be interpreted based on the following sequential tests:
 The reverse conversions are done for the special characters mentioned
 in the Conversion from Python to XML section above.
 
-Any 'attr' attribute fields are converted to elements named '@attr'
-and corresponding '#text' elements are created if needed.
+Any ‘attr’ attribute fields are converted to elements named ‘@attr’
+and corresponding ‘#text’ elements are created if needed.
 
 
 Class Documentation
 ===================
 
-Provides the DataModelDict class for creating, accessing and
-manipulating json/xml data structures.
+DataModelDict class for representing data models equivalently in
+Python, JSON, and XML.
 
-**class DataModelDict.DataModelDict(*args, **kwargs)**
+**class DataModelDict.DataModelDict(*args, kwargs)**
 
    Bases: ``collections.OrderedDict``, ``object``
 
@@ -245,11 +245,11 @@ manipulating json/xml data structures.
       value.
 
       :Parameters:
-         * **key** -- The dictionary key.
+         * **key** (*str*) – The dictionary key.
 
-         * **value** -- The value to add to the dictionary key.  If
-           key exists, the element is converted to a list if needed
-           and value is appended.
+         * **value** – The value to add to the dictionary key.  If key
+           exists, the element is converted to a list if needed and
+           value is appended.
 
    **aslist(key)**
 
@@ -257,10 +257,10 @@ manipulating json/xml data structures.
       elements whose values may or may not be lists.
 
       :Parameters:
-         **key** -- Dictionary key
+         **key** (*str*) – Dictionary key
 
       :Returns:
-         The dictionary's element value or [value] depending on if it
+         The dictionary’s element value or [value] depending on if it
          already is a list.
 
       :Return type:
@@ -272,13 +272,13 @@ manipulating json/xml data structures.
       identified by the specified conditions.
 
       :Parameters:
-         * **key** -- Dictionary key to search for.
+         * **key** (*str*) – Dictionary key to search for.
 
-         * **yes** (*dict*) -- Key-value terms which the subelement
+         * **yes** (*dict*) – Key-value terms which the subelement
            must have to be considered a match.
 
-         * **no** (*dict*) -- Key-value terms which the subelement
-           must not have to be considered a match.
+         * **no** (*dict*) – Key-value terms which the subelement must
+           not have to be considered a match.
 
       :Returns:
          The value of the uniquely identified subelement.
@@ -287,7 +287,7 @@ manipulating json/xml data structures.
          any
 
       :Raises:
-         ``ValueError`` -- If exactly one matching subelement is not
+         ``ValueError`` – If exactly one matching subelement is not
          identified.
 
    **finds(key, yes={}, no={})**
@@ -296,13 +296,13 @@ manipulating json/xml data structures.
       the specified conditions.
 
       :Parameters:
-         * **key** -- Dictionary key to search for.
+         * **key** (*str*) – Dictionary key to search for.
 
-         * **yes** (*dict*) -- Key-value terms which the subelement
+         * **yes** (*dict*) – Key-value terms which the subelement
            must have to be considered a match.
 
-         * **no** (*dict*) -- Key-value terms which the subelement
-           must not have to be considered a match.
+         * **no** (*dict*) – Key-value terms which the subelement must
+           not have to be considered a match.
 
       :Returns:
          The values of any matching subelements.
@@ -316,10 +316,10 @@ manipulating json/xml data structures.
       elements whose values may or may not be lists.
 
       :Parameters:
-         **key** -- Dictionary key
+         **key** (*str*) – Dictionary key
 
       :Yields:
-         *any* -- The dictionary's value or each element in value if
+         *any* – The dictionary’s value or each element in value if
          value is a list.
 
    **iterfinds(key, yes={}, no={})**
@@ -328,16 +328,16 @@ manipulating json/xml data structures.
       identified by the specified conditions.
 
       :Parameters:
-         * **key** -- Dictionary key to search for.
+         * **key** (*str*) – Dictionary key to search for.
 
-         * **yes** (*dict*) -- Key-value terms which the subelement
+         * **yes** (*dict*) – Key-value terms which the subelement
            must have to be considered a match.
 
-         * **no** (*dict*) -- Key-value terms which the subelement
-           must not have to be considered a match.
+         * **no** (*dict*) – Key-value terms which the subelement must
+           not have to be considered a match.
 
       :Yields:
-         *any* -- The values of any matching subelements.
+         *any* – The values of any matching subelements.
 
    **iterpaths(key, yes={}, no={})**
 
@@ -345,33 +345,40 @@ manipulating json/xml data structures.
       identified by the specified conditions.
 
       :Parameters:
-         * **key** -- Dictionary key to search for.
+         * **key** (*str*) – Dictionary key to search for.
 
-         * **yes** (*dict*) -- Key-value terms which the subelement
+         * **yes** (*dict*) – Key-value terms which the subelement
            must have to be considered a match.
 
-         * **no** (*dict*) -- Key-value terms which the subelement
-           must not have to be considered a match.
+         * **no** (*dict*) – Key-value terms which the subelement must
+           not have to be considered a match.
 
       :Yields:
-         *list of str* -- The path lists to any matching subelements.
+         *list of str* – The path lists to any matching subelements.
 
-   **json(fp=None, indent=None, separators=(u', ', u': '))**
+   **itervaluepaths()**
+
+      Iterates over path lists to all value elements at any level.
+
+      :Yields:
+         *list* – The path lists to all value subelements.
+
+   **json(fp=None, indent=None, separators=(', ', ': '))**
 
       Converts the DataModelDict to JSON content.
 
       :Parameters:
-         * **fp** (*file-like object** or **None**, **optional*) -- An
+         * **fp** (*file-like object or None, optional*) – An
            open file to write the content to.  If None (default), then
            the content is returned as a str.
 
-         * **indent** (*int** or **None**, **optional*) -- Number of
+         * **indent** (*int or None, optional*) – Number of
            spaces to indent lines.  If None (default), the content
            will be inline.
 
-         * **separators** (*tuple of str**, **optional*) -- Allows for
+         * **separators** (*tuple of str, optional*) – Allows for
            item_separator and dict_separator) to be changed. Default
-           is (', ', ': ').
+           is (‘, ‘, ‘: ‘).
 
       :Returns:
          The JSON content (only returned if fp is None).
@@ -384,21 +391,21 @@ manipulating json/xml data structures.
       Read in values from a json/xml string or file-like object.
 
       :Parameters:
-         * **model** (*str** or **file-like object*) -- The XML or
-           JSON content to read.  This is allowed to be either a file
-           path, a string representation, or an open file-like object
-           in byte mode.
+         * **model** (*str or file-like object*) – The XML or JSON
+           content to read.  This is allowed to be either a file path,
+           a string representation, or an open file-like object in
+           byte mode.
 
-         * **format** (*str** or **None**, **optional*) -- Allows for
-           the format of the content to be explicitly stated ('xml' or
-           'json').  If None (default), will try to determine which
-           format based on if the first character of model is '<' or
-           '{'.
+         * **format** (*str or None, optional*) – Allows for
+           the format of the content to be explicitly stated (‘xml’ or
+           ‘json’).  If None (default), will try to determine which
+           format based on if the first character of model is ‘<’ or
+           ‘{‘.
 
       :Raises:
-         ``ValueError`` -- If format is None and unable to identify
-         XML/JON content, or if format is not equal to 'xml' or
-         'json'.
+         ``ValueError`` – If format is None and unable to identify
+         XML/JON content, or if format is not equal to ‘xml’ or
+         ‘json’.
 
    **path(key, yes={}, no={})**
 
@@ -407,13 +414,13 @@ manipulating json/xml data structures.
       either no match, or multiple matches are found.
 
       :Parameters:
-         * **key** -- Dictionary key to search for.
+         * **key** (*str*) – Dictionary key to search for.
 
-         * **yes** (*dict*) -- Key-value terms which the subelement
+         * **yes** (*dict*) – Key-value terms which the subelement
            must have to be considered a match.
 
-         * **no** (*dict*) -- Key-value terms which the subelement
-           must not have to be considered a match.
+         * **no** (*dict*) – Key-value terms which the subelement must
+           not have to be considered a match.
 
       :Returns:
          The subelement path list to the uniquely identified
@@ -423,7 +430,7 @@ manipulating json/xml data structures.
          list of str
 
       :Raises:
-         ``ValueError`` -- If exactly one matching subelement is not
+         ``ValueError`` – If exactly one matching subelement is not
          identified.
 
    **paths(key, yes={}, no={})**
@@ -432,13 +439,13 @@ manipulating json/xml data structures.
       identified by the specified conditions.
 
       :Parameters:
-         * **key** -- Dictionary key to search for.
+         * **key** (*str*) – Dictionary key to search for.
 
-         * **yes** (*dict*) -- Key-value terms which the subelement
+         * **yes** (*dict*) – Key-value terms which the subelement
            must have to be considered a match.
 
-         * **no** (*dict*) -- Key-value terms which the subelement
-           must not have to be considered a match.
+         * **no** (*dict*) – Key-value terms which the subelement must
+           not have to be considered a match.
 
       :Returns:
          The path lists for any matching subelements.
@@ -451,15 +458,15 @@ manipulating json/xml data structures.
       Return the DataModelDict as XML content.
 
       :Parameters:
-         * **fp** (*file-like object** or **None**, **optional*) -- An
+         * **fp** (*file-like object or None, optional*) – An
            open file to write the content to.  If None (default), then
            the content is returned as a str.
 
-         * **indent** (*int** or **None**, **optional*) -- Number of
+         * **indent** (*int or None, optional*) – Number of
            spaces to indent lines.  If None (default), the content
            will be inline.
 
-         * **full_document** (*bool**, **otional*) -- Indicates if the
+         * **full_document** (*bool, optional*) – Indicates if the
            output is associated with a full xml model.  If True
            (default), the content can have only one root, and a header
            is added.

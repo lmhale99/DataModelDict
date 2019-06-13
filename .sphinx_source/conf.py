@@ -46,7 +46,7 @@ templates_path = ['.sphinx_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst']
 
 # The master toctree document.
 master_doc = 'README'
@@ -56,12 +56,10 @@ project = u'DataModelDict'
 copyright = u'2017, Lucas Hale'
 author = u'Lucas Hale'
 
-import os
+
 def get_version():
-    version_file = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                'VERSION')
-    with open(version_file) as version_f:
-        return version_f.read().strip()
+    import DataModelDict
+    return DataModelDict.__version__
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
