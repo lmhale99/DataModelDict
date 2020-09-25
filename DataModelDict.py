@@ -35,7 +35,7 @@ elif sys.version_info[0] == 3:
 else:
     raise ValueError("Unsupported Python version")
 
-__version__ = '0.9.6'
+__version__ = '0.9.7'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
@@ -507,7 +507,7 @@ class DataModelDict(OrderedDict, object):
             else:
                 raise ValueError("Invalid format. Only 'json', 'xml', or None values supported.")
     
-    def json(self, fp=None, indent=None, separators=(', ', ': ')):
+    def json(self, fp=None, *args, **kwargs):
         """
         Converts the DataModelDict to JSON content.
         
@@ -516,12 +516,10 @@ class DataModelDict(OrderedDict, object):
         fp : file-like object or None, optional
             An open file to write the content to.  If None (default), then
             the content is returned as a str.
-        indent : int or None, optional 
-            Number of spaces to indent lines.  If None (default), the content
-            will be inline.
-        separators : tuple of str, optional
-            Allows for item_separator and dict_separator) to be changed.
-            Default is (', ', ': ').
+        *args : any
+            Any other positional arguments accepted by json.dump(s)
+        **kwargs : any
+            Any other keyword arguments accepted by json.dump(s)
         
         Returns
         -------
@@ -530,16 +528,11 @@ class DataModelDict(OrderedDict, object):
         """
         
         if fp is None:
-            return json.dumps(self,
-                              indent = indent,
-                              separators = separators)
+            return json.dumps(self, *args, **kwargs)
         else:
-            json.dump(self,
-                      fp = fp,
-                      indent = indent,
-                      separators = separators)
+            json.dump(self, fp=fp, *args, **kwargs)
     
-    def xml(self, fp=None, indent=None, full_document=True):
+    def xml(self, fp=None, indent=None, **kwargs):
         """
         Return the DataModelDict as XML content.
         
@@ -548,13 +541,12 @@ class DataModelDict(OrderedDict, object):
         fp : file-like object or None, optional
             An open file to write the content to.  If None (default), then
             the content is returned as a str.
-        indent : int or None, optional 
-            Number of spaces to indent lines.  If None (default), the content
-            will be inline.
-        full_document : bool, optional
-            Indicates if the output is associated with a full xml model.  If
-            True (default), the content can have only one root, and a header
-            is added.
+        indent : int, str or None, optional 
+            If int, number of spaces to indent lines.  If str, will use that
+            as the indentation. If None (default), the content will be inline.
+        **kwargs : any
+            Other keywords supported by xmltodict.unparse, except for output
+            which is replaced by fp, and preprocessor, which is controlled.
         
         Returns
         -------
@@ -562,20 +554,22 @@ class DataModelDict(OrderedDict, object):
             The XML content (only returned if fp is None).
         """
         
-        if indent is None:
-            indent = ''
-            newl = ''
-        else:
-            indent = ''.join([' ' for i in range(indent)])
-            newl = '\n'
+        if 'output' in kwargs:
+            raise ValueError('Use fp instead of output')
+        if 'preprocessor' in kwargs:
+            raise ValueError('preprocessor cannot be changed')
+        
+        if isinstance(indent, int):
+            kwargs['indent'] = ''.join([' ' for i in range(indent)])
+            kwargs['newl'] = kwargs.get('newl', '\n')
+            kwargs['pretty'] = True
+        elif isinstance(indent, str):
+            kwargs['indent'] = indent
         
         return xmltodict.unparse(deepcopy(self),
                                  output = fp,
                                  preprocessor = self.__xml_preprocessor(),
-                                 pretty = True,
-                                 indent = indent,
-                                 newl = newl,
-                                 full_document = full_document)
+                                 **kwargs)
     
     def __xml_postprocessor(self, convert_NaN=True):
         """
