@@ -35,7 +35,7 @@ elif sys.version_info[0] == 3:
 else:
     raise ValueError("Unsupported Python version")
 
-__version__ = '0.9.7'
+__version__ = '0.9.8'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
@@ -579,6 +579,8 @@ class DataModelDict(OrderedDict, object):
             parse_constant = {'': None,
                               'True': True,
                               'False': False,
+                              'true': True,
+                              'false': False,
                               '-Infinity': float('-Inf'),
                               'Infinity': float('Inf'),
                               'NaN': float('NaN')}
@@ -604,14 +606,23 @@ class DataModelDict(OrderedDict, object):
             if value in parse_constant:
                 return key, parse_constant[value]
             
-            # Try to convert to integer
             try:
-                return key, long(value)
-            except:
-                # Try to convert to float
+                # Try to convert to integer
+                intval = long(value)
+            except ValueError:
                 try:
+                    # Try to return as float
                     return key, float(value)
-                except:
+                except ValueError:
+                    # Return unchanged as str
+                    return key, value
+            else:
+                # Check if int of value is reversable back to str
+                if str(intval) == value:
+                    # Return as int
+                    return key, intval
+                else:
+                    # Return unchanged as str
                     return key, value
         
         return postprocessor
@@ -622,16 +633,16 @@ class DataModelDict(OrderedDict, object):
         """
         if convert_NaN is True:
             allow_NaN = {'None': '',
-                         'True': 'True',
-                         'False': 'False',
+                         'True': 'true',
+                         'False': 'false',
                          '-inf': '-Infinity',
                          'inf': 'Infinity',
                          'nan': 'NaN'}
         
         elif convert_NaN is False:
             allow_NaN = {'None': '',
-                         'True': 'True',
-                         'False': 'False'}
+                         'True': 'true',
+                         'False': 'false'}
         
         def preprocessor(key, value):
             
