@@ -2,10 +2,6 @@
 DataModelDict
 *************
 
-
-Introduction
-============
-
 The DataModelDict class is used for handling data models that have
 equivalent representations in XML, JSON, and Python.  Constructing
 data models in this way is convenient as it supports compatibility
