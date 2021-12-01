@@ -2,6 +2,9 @@
 DataModelDict
 *************
 
+Introduction
+============
+
 The DataModelDict class is used for handling data models that have
 equivalent representations in XML, JSON, and Python.  Constructing
 data models in this way is convenient as it supports compatibility
@@ -55,12 +58,12 @@ three formats:
   do reversibly handle attributes, it complicates the Python and JSON
   representations.
 
-* Embedded XML content, i.e. “text with <embed>embedded</embed>
-  content”, might not be reversible:
+* Embedded XML content, i.e. "text with <embed>embedded</embed>
+  content", might not be reversible:
 
    * If this is in a Python/JSON value, converting to XML gives
-     “text with
-     &amp;lt;embed&amp;gt;embedded&amp;lt;/embed&amp;gt; content”.
+     "text with
+     &amp;lt;embed&amp;gt;embedded&amp;lt;/embed&amp;gt; content".
      This is reversible.
 
    * If this is an XML text field, parsing to Python pulls the
@@ -127,17 +130,17 @@ content is constructed based on the Python data types.
 +------------------+------------------+
 | int, float       | repr(val)        |
 +------------------+------------------+
-| True             | ‘true’           |
+| True             | 'true'           |
 +------------------+------------------+
-| False            | ‘false’          |
+| False            | 'false'          |
 +------------------+------------------+
-| None             | ‘’               |
+| None             | ''               |
 +------------------+------------------+
-| np.nan           | ‘NaN’            |
+| np.nan           | 'NaN'            |
 +------------------+------------------+
-| np.inf           | ‘Infinity’       |
+| np.inf           | 'Infinity'       |
 +------------------+------------------+
-| -np.inf          | ‘-Infinity’      |
+| -np.inf          | '-Infinity'      |
 +------------------+------------------+
 
 Some characters in the XML text fields will also be converted to avoid
@@ -196,17 +199,17 @@ fields will be interpreted based on the following sequential tests:
 +------------------------------------------+----------+
 | XML text                                 | Python   |
 +==========================================+==========+
-| text == ‘True’ or ‘true’                 | True     |
+| text == 'True' or 'true'                 | True     |
 +------------------------------------------+----------+
-| text == ‘False’ or ‘false’               | False    |
+| text == 'False' or 'false'               | False    |
 +------------------------------------------+----------+
-| text == ‘’                               | None     |
+| text == ''                               | None     |
 +------------------------------------------+----------+
-| text == ‘NaN’                            | np.nan   |
+| text == 'NaN'                            | np.nan   |
 +------------------------------------------+----------+
-| text == ‘Infinity’                       | np.inf   |
+| text == 'Infinity'                       | np.inf   |
 +------------------------------------------+----------+
-| text == ‘-Infinity’                      | -np.inf  |
+| text == '-Infinity'                      | -np.inf  |
 +------------------------------------------+----------+
 | try int(text) and text == str(int(text)) | int      |
 +------------------------------------------+----------+
@@ -216,7 +219,7 @@ fields will be interpreted based on the following sequential tests:
 +------------------------------------------+----------+
 
 The int conversion test was updated for version 0.9.8 to check that
-the values can reversably be changed back into a str.  This is
+the values can reversibly be changed back into a str.  This is
 necessary to properly handle values, such as journal page numbers,
 that may contain leading zeroes.
 
