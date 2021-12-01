@@ -1,8 +1,6 @@
 """DataModelDict class for representing data models equivalently in Python, JSON, and XML."""
 
 # Standard Python libraries
-from __future__ import (absolute_import, print_function,
-                        division, unicode_literals)
 import os
 import sys
 import json
@@ -12,28 +10,6 @@ from collections import OrderedDict
 
 # https://github.com/martinblech/xmltodict
 import xmltodict
-
-# Python 2 settings
-if sys.version_info[0] == 2:
-    stringtype = basestring
-    range = xrange
-    
-    def iteritems(d):
-        for key, value in d.iteritems():
-            yield key, value
-    
-# Python 3 settings
-elif sys.version_info[0] == 3:
-    stringtype = (str, bytes)
-    unicode = str
-    long = int
-    
-    def iteritems(d):
-        for key, value in d.items():
-            yield key, value
-    
-else:
-    raise ValueError("Unsupported Python version")
 
 __version__ = '0.9.8'
 __all__ = ['DataModelDict']
@@ -66,7 +42,7 @@ class DataModelDict(OrderedDict, object):
         OrderedDict.__init__(self)
         
         # If string or file-like object, call load
-        if len(args) == 1 and (isinstance(args[0], stringtype) or 
+        if len(args) == 1 and (isinstance(args[0], (str, bytes)) or 
                                hasattr(args[0], 'read') or
                                hasattr(args[0], 'as_posix')):
             self.load(args[0], **kwargs)
@@ -329,7 +305,7 @@ class DataModelDict(OrderedDict, object):
             match = True
             
             # Iterate over all key, value pairs in yes
-            for yes_key, yes_value in iteritems(yes):
+            for yes_key, yes_value in yes.items():
                 key_match = False
                 
                 # Iterate over list of all values associated with kwarg_key
@@ -347,7 +323,7 @@ class DataModelDict(OrderedDict, object):
             
             # Iterate over all key, value pairs in no
             if match:
-                for no_key, no_value in iteritems(no):
+                for no_key, no_value in no.items():
                     key_match = True
                     
                     # Iterate over list of all values associated with
@@ -395,7 +371,7 @@ class DataModelDict(OrderedDict, object):
             match = True
             
             # Iterate over all key, value pairs in yes
-            for yes_key, yes_value in iteritems(yes):
+            for yes_key, yes_value in yes.items():
                 key_match = False
                 
                 # Iterate over list of all values associated with kwarg_key in
@@ -413,7 +389,7 @@ class DataModelDict(OrderedDict, object):
             
             # Iterate over all key, value pairs in no
             if match:
-                for no_key, no_value in iteritems(no):
+                for no_key, no_value in no.items():
                     key_match = True
                     
                     # Iterate over list of all values associated with
@@ -495,7 +471,7 @@ class DataModelDict(OrderedDict, object):
             if format.lower() == 'json':
                 self.update(json.load(model,
                                       object_pairs_hook = DataModelDict,
-                                      parse_int = long,
+                                      parse_int = int,
                                       parse_float = float))
             
             # Load xml using xmltodict package
@@ -593,7 +569,7 @@ class DataModelDict(OrderedDict, object):
         def postprocessor(path, key, value):
             
             # Return non-string terms
-            if not isinstance(value, unicode):
+            if not isinstance(value, str):
                 return key, value
             
             # Decode string contents
@@ -608,7 +584,7 @@ class DataModelDict(OrderedDict, object):
             
             try:
                 # Try to convert to integer
-                intval = long(value)
+                intval = int(value)
             except ValueError:
                 try:
                     # Try to return as float
@@ -648,7 +624,7 @@ class DataModelDict(OrderedDict, object):
             
             # Iterate through dictionary keys
             if isinstance(value, dict):
-                for k, v in iteritems(value):
+                for k, v in value.items():
                     value[k] = preprocessor(k,v)[1]
                 return key, value
             
@@ -659,19 +635,19 @@ class DataModelDict(OrderedDict, object):
                 return key, value
             
             # Convert ints and floats to strings
-            elif isinstance(value, (int, long, float)) or value is None:
-                value = unicode(repr(value)).strip("""L""")
+            elif isinstance(value, (int, float)) or value is None:
+                value = str(repr(value)).strip("""L""")
                 return key, value
             
             # Parse and convert strings
-            elif isinstance(value, stringtype):
+            elif isinstance(value, (str, bytes)):
                 if value in allow_NaN:
                     return key, allow_NaN[value]
                 else:
                     value = value.replace('\n', '\\n')
                     value = value.replace('\t', '\\t')
                     value = value.replace('\r', '\\r')
-                    return key, unicode(value)
+                    return key, str(value)
             else:
                 raise TypeError('unknown value type ' + repr(value))
         
@@ -684,7 +660,7 @@ class DataModelDict(OrderedDict, object):
         """
         
         if isinstance(var, dict):
-            for k, v in iteritems(var):
+            for k, v in var.items():
                 if k == key:
                     if isinstance(v, list):
                         for d in v:
@@ -706,7 +682,7 @@ class DataModelDict(OrderedDict, object):
         """
         
         if isinstance(var, dict):
-            for k, v in iteritems(var):
+            for k, v in var.items():
                 if k == key:
                     if isinstance(v, list):
                         for i in range(len(v)):
@@ -730,7 +706,7 @@ class DataModelDict(OrderedDict, object):
         """
         
         if isinstance(var, dict):
-            for k, v in iteritems(var):
+            for k, v in var.items():
                 if isinstance(v, dict):
                     for result in self.__gen_dict_valuepath(v):
                         yield [k] + result
@@ -771,7 +747,7 @@ class uber_open_rmode():
             self.open_file = open(self.data, 'rb')
             self.to_close = True
         
-        elif not isinstance(self.data, unicode):
+        elif not isinstance(self.data, str):
             self.open_file = BytesIO(self.data)
             self.to_close = True
             

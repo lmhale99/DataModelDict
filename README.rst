@@ -83,8 +83,7 @@ Conversion from Python to JSON
 
 The Python-JSON conversions use the standard Python JSON library.  In
 converting from Python to JSON, all elements of the DataModelDict must
-be an instance of a supported data type (with unicode and long being
-specific to Python 2).
+be an instance of a supported data type.
 
 +------------------+-----------+
 | Python           | JSON      |
@@ -93,9 +92,9 @@ specific to Python 2).
 +------------------+-----------+
 | list, tuple      | array     |
 +------------------+-----------+
-| str, unicode     | string    |
+| str              | string    |
 +------------------+-----------+
-| int, long, float | number    |
+| int, float       | number    |
 +------------------+-----------+
 | True             | true      |
 +------------------+-----------+
@@ -129,21 +128,21 @@ content is constructed based on the Python data types.
 +------------------+------------------+
 | list, tuple      | repeated element |
 +------------------+------------------+
-| str, unicode     | text             |
+| str              | text             |
 +------------------+------------------+
-| int, long, float | text (from repr) |
+| int, float       | repr(val)        |
 +------------------+------------------+
-| True             | text = True      |
+| True             | ‘true’           |
 +------------------+------------------+
-| False            | text = False     |
+| False            | ‘false’          |
 +------------------+------------------+
-| None             | empty text field |
+| None             | ‘’               |
 +------------------+------------------+
-| np.nan           | text = NaN       |
+| np.nan           | ‘NaN’            |
 +------------------+------------------+
-| np.inf           | text = Infinity  |
+| np.inf           | ‘Infinity’       |
 +------------------+------------------+
-| -np.inf          | text = -Infinity |
+| -np.inf          | ‘-Infinity’      |
 +------------------+------------------+
 
 Some characters in the XML text fields will also be converted to avoid
@@ -166,31 +165,31 @@ The Python-JSON conversions use the standard Python JSON library.  In
 converting from JSON to Python, the conversions of types is
 straight-forward.
 
-+---------------+---------------+---------------+
-| JSON          | Python 2      | Python 3      |
-+===============+===============+===============+
-| object        | DataModelDict | DataModelDict |
-+---------------+---------------+---------------+
-| array         | list          | list          |
-+---------------+---------------+---------------+
-| string        | unicode       | str           |
-+---------------+---------------+---------------+
-| number (int)  | long          | int           |
-+---------------+---------------+---------------+
-| number (real) | float         | float         |
-+---------------+---------------+---------------+
-| true          | True          | True          |
-+---------------+---------------+---------------+
-| false         | False         | False         |
-+---------------+---------------+---------------+
-| null          | None          | None          |
-+---------------+---------------+---------------+
-| NaN           | np.nan        | np.nan        |
-+---------------+---------------+---------------+
-| Infinity      | np.inf        | np.inf        |
-+---------------+---------------+---------------+
-| -Infinity     | -np.inf       | -np.inf       |
-+---------------+---------------+---------------+
++---------------+---------------+
+| JSON          | Python        |
++===============+===============+
+| object        | DataModelDict |
++---------------+---------------+
+| array         | list          |
++---------------+---------------+
+| string        | str           |
++---------------+---------------+
+| number (int)  | int           |
++---------------+---------------+
+| number (real) | float         |
++---------------+---------------+
+| true          | True          |
++---------------+---------------+
+| false         | False         |
++---------------+---------------+
+| null          | None          |
++---------------+---------------+
+| NaN           | np.nan        |
++---------------+---------------+
+| Infinity      | np.inf        |
++---------------+---------------+
+| -Infinity     | -np.inf       |
++---------------+---------------+
 
 
 Conversion from XML to Python
@@ -199,27 +198,32 @@ Conversion from XML to Python
 The Python-XML conversions use the xmltodict Python package.  The text
 fields will be interpreted based on the following sequential tests:
 
-+------------------+----------+----------+
-| XML text         | Python 2 | Python 3 |
-+==================+==========+==========+
-| == ‘True’        | True     | True     |
-+------------------+----------+----------+
-| == ‘False’       | False    | False    |
-+------------------+----------+----------+
-| == ‘’            | None     | None     |
-+------------------+----------+----------+
-| == ‘NaN’         | np.nan   | np.nan   |
-+------------------+----------+----------+
-| == ‘Infinity’    | np.inf   | np.inf   |
-+------------------+----------+----------+
-| == ‘-Infinity’   | -np.inf  | -np.inf  |
-+------------------+----------+----------+
-| try: int(text)   | long     | int      |
-+------------------+----------+----------+
-| try: float(text) | float    | float    |
-+------------------+----------+----------+
-| otherwise        | unicode  | str      |
-+------------------+----------+----------+
++------------------------------------------+----------+
+| XML text                                 | Python   |
++==========================================+==========+
+| text == ‘True’ or ‘true’                 | True     |
++------------------------------------------+----------+
+| text == ‘False’ or ‘false’               | False    |
++------------------------------------------+----------+
+| text == ‘’                               | None     |
++------------------------------------------+----------+
+| text == ‘NaN’                            | np.nan   |
++------------------------------------------+----------+
+| text == ‘Infinity’                       | np.inf   |
++------------------------------------------+----------+
+| text == ‘-Infinity’                      | -np.inf  |
++------------------------------------------+----------+
+| try int(text) and text == str(int(text)) | int      |
++------------------------------------------+----------+
+| try float(text)                          | float    |
++------------------------------------------+----------+
+| otherwise                                | str      |
++------------------------------------------+----------+
+
+The int conversion test was updated for version 0.9.8 to check that
+the values can reversably be changed back into a str.  This is
+necessary to properly handle values, such as journal page numbers,
+that may contain leading zeroes.
 
 The reverse conversions are done for the special characters mentioned
 in the Conversion from Python to XML section above.
