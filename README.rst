@@ -20,7 +20,7 @@ The DataModelDict class:
 * has methods for searching through elements, and
 
 * has methods that help with constructing and interacting with
-   compliant data models.
+  compliant data models.
 
 
 Setup
@@ -48,34 +48,33 @@ models that allow for exact reversible transformations between the
 three formats:
 
 * Valid, full XML requires that there is exactly one root element.
-   In other words, the top-level DataModelDict of a data model   can
-   have only one key.
+  In other words, the top-level DataModelDict of a data model   can
+  have only one key.
 
 * Do not use lists of lists for representing data.  The XML
-   conversions are only reversible for lists of values or lists of
-   dictionaries.  Future updates may allow this.
+  conversions are only reversible for lists of values or lists of
+  dictionaries.  Future updates may allow this.
 
 * Avoid using XML attributes if possible.  While the XML conversions
-   do reversibly handle attributes, it complicates the Python and JSON
-   representations.
+  do reversibly handle attributes, it complicates the Python and JSON
+  representations.
 
 * Embedded XML content, i.e. “text with <embed>embedded</embed>
-   content”, might not be reversible:
+  content”, might not be reversible:
 
-   ..
-      * If this is in a Python/JSON value, converting to XML gives
-         “text with
-         &amp;lt;embed&amp;gt;embedded&amp;lt;/embed&amp;gt; content”.
-         This is reversible.
+   * If this is in a Python/JSON value, converting to XML gives
+     “text with
+     &amp;lt;embed&amp;gt;embedded&amp;lt;/embed&amp;gt; content”.
+     This is reversible.
 
-      * If this is an XML text field, parsing to Python pulls the
-         embedded elements out of the text, which is not reversible!
+   * If this is an XML text field, parsing to Python pulls the
+     embedded elements out of the text, which is not reversible!
 
 * XML subelements of the same name within an element should be given
-   consecutively.  When parsed, all values of subelements of the same
-   name are collected together in a list.  This will alter the
-   original order of subelements if matching names were not originally
-   consecutive.
+  consecutively.  When parsed, all values of subelements of the same
+  name are collected together in a list.  This will alter the
+  original order of subelements if matching names were not originally
+  consecutive.
 
 
 Conversion from Python to JSON
@@ -149,7 +148,7 @@ Some characters in the XML text fields will also be converted to avoid
 conflicts.
 
 * XML limited characters such as <, > and & are converted to their
-   HTML entities.
+  HTML entities.
 
 * n, t, r are converted to \n, \t, and \r
 
@@ -253,9 +252,9 @@ Python, JSON, and XML.
       :Parameters:
          * **key** (*str*) – The dictionary key.
 
-         * **value** – The value to add to the dictionary key.  If
-            key exists, the element is converted to a list if needed
-            and value is appended.
+         * **value** (*any*) – The value to add to the dictionary key.  If
+           key exists, the element is converted to a list if needed
+           and value is appended.
 
    **aslist(key)**
 
@@ -281,10 +280,10 @@ Python, JSON, and XML.
          * **key** (*str*) – Dictionary key to search for.
 
          * **yes** (*dict*) – Key-value terms which the subelement
-            must have to be considered a match.
+           must have to be considered a match.
 
          * **no** (*dict*) – Key-value terms which the subelement
-            must not have to be considered a match.
+           must not have to be considered a match.
 
       :Returns:
          The value of the uniquely identified subelement.
@@ -305,10 +304,10 @@ Python, JSON, and XML.
          * **key** (*str*) – Dictionary key to search for.
 
          * **yes** (*dict*) – Key-value terms which the subelement
-            must have to be considered a match.
+           must have to be considered a match.
 
          * **no** (*dict*) – Key-value terms which the subelement
-            must not have to be considered a match.
+           must not have to be considered a match.
 
       :Returns:
          The values of any matching subelements.
@@ -337,10 +336,10 @@ Python, JSON, and XML.
          * **key** (*str*) – Dictionary key to search for.
 
          * **yes** (*dict*) – Key-value terms which the subelement
-            must have to be considered a match.
+           must have to be considered a match.
 
          * **no** (*dict*) – Key-value terms which the subelement
-            must not have to be considered a match.
+           must not have to be considered a match.
 
       :Yields:
          *any* – The values of any matching subelements.
@@ -354,10 +353,10 @@ Python, JSON, and XML.
          * **key** (*str*) – Dictionary key to search for.
 
          * **yes** (*dict*) – Key-value terms which the subelement
-            must have to be considered a match.
+           must have to be considered a match.
 
          * **no** (*dict*) – Key-value terms which the subelement
-            must not have to be considered a match.
+           must not have to be considered a match.
 
       :Yields:
          *list of str* – The path lists to any matching subelements.
@@ -369,20 +368,20 @@ Python, JSON, and XML.
       :Yields:
          *list* – The path lists to all value subelements.
 
-   **json(fp=None, *args, kwargs)**
+   **json(fp=None, *args, **kwargs)**
 
       Converts the DataModelDict to JSON content.
 
       :Parameters:
          * **fp** (*file-like object or None, optional*) – An
-            open file to write the content to.  If None (default),
-            then the content is returned as a str.
+           open file to write the content to.  If None (default),
+           then the content is returned as a str.
 
-         * ***args** (*any*) – Any other positional arguments
-            accepted by json.dump(s)
+         * **args** (*any*) – Any other positional arguments
+           accepted by json.dump(s)
 
          * ****kwargs** (*any*) – Any other keyword arguments
-            accepted by json.dump(s)
+           accepted by json.dump(s)
 
       :Returns:
          The JSON content (only returned if fp is None).
@@ -396,15 +395,15 @@ Python, JSON, and XML.
 
       :Parameters:
          * **model** (*str or file-like object*) – The XML or
-            JSON content to read.  This is allowed to be either a file
-            path, a string representation, or an open file-like object
-            in byte mode.
+           JSON content to read.  This is allowed to be either a file
+           path, a string representation, or an open file-like object
+           in byte mode.
 
          * **format** (*str or None, optional*) – Allows for
-            the format of the content to be explicitly stated (‘xml’
-            or ‘json’).  If None (default), will try to determine
-            which format based on if the first character of model is
-            ‘<’ or ‘{‘.
+           the format of the content to be explicitly stated (‘xml’
+           or ‘json’).  If None (default), will try to determine
+           which format based on if the first character of model is
+           ‘<’ or ‘{‘.
 
       :Raises:
          **ValueError** – If format is None and unable to identify
@@ -421,10 +420,10 @@ Python, JSON, and XML.
          * **key** (*str*) – Dictionary key to search for.
 
          * **yes** (*dict*) – Key-value terms which the subelement
-            must have to be considered a match.
+           must have to be considered a match.
 
          * **no** (*dict*) – Key-value terms which the subelement
-            must not have to be considered a match.
+           must not have to be considered a match.
 
       :Returns:
          The subelement path list to the uniquely identified
@@ -446,10 +445,10 @@ Python, JSON, and XML.
          * **key** (*str*) – Dictionary key to search for.
 
          * **yes** (*dict*) – Key-value terms which the subelement
-            must have to be considered a match.
+           must have to be considered a match.
 
          * **no** (*dict*) – Key-value terms which the subelement
-            must not have to be considered a match.
+           must not have to be considered a match.
 
       :Returns:
          The path lists for any matching subelements.
@@ -457,23 +456,23 @@ Python, JSON, and XML.
       :Return type:
          list
 
-   **xml(fp=None, indent=None, kwargs)**
+   **xml(fp=None, indent=None, **kwargs)**
 
       Return the DataModelDict as XML content.
 
       :Parameters:
          * **fp** (*file-like object or None, optional*) – An
-            open file to write the content to.  If None (default),
-            then the content is returned as a str.
+           open file to write the content to.  If None (default),
+           then the content is returned as a str.
 
          * **indent** (*int, str or None, optional*) – If
-            int, number of spaces to indent lines.  If str, will use
-            that as the indentation. If None (default), the content
-            will be inline.
+           int, number of spaces to indent lines.  If str, will use
+           that as the indentation. If None (default), the content
+           will be inline.
 
          * ****kwargs** (*any*) – Other keywords supported by
-            xmltodict.unparse, except for output which is replaced by
-            fp, and preprocessor, which is controlled.
+           xmltodict.unparse, except for output which is replaced by
+           fp, and preprocessor, which is controlled.
 
       :Returns:
          The XML content (only returned if fp is None).
