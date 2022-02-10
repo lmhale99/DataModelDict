@@ -2,7 +2,6 @@
 
 # Standard Python libraries
 import os
-import sys
 import json
 from io import BytesIO, open
 from copy import deepcopy
@@ -11,7 +10,7 @@ from collections import OrderedDict
 # https://github.com/martinblech/xmltodict
 import xmltodict
 
-__version__ = '0.9.8'
+__version__ = '0.9.9'
 __all__ = ['DataModelDict']
 
 class DataModelDict(OrderedDict, object):
@@ -729,28 +728,48 @@ class uber_open_rmode():
     """
     
     def __init__(self, data):
+        """
+        Initialize context manager.
+        
+        Parameters
+        ----------
+        data : file-like object or str
+            Specifies what content to read.
+        """
         self.data = data
+        self.open_file = None
+        self.to_close = False
         
     def __enter__(self):
+        """
+        Performs the different open interactions.  If data has a read attribute
+        then use data directly.  Else if data is a file path, open it.  Else
+        pass the data into a BytesIO object. 
+        """
         
-        def isfile(data):
+        def isfile():
+            """Test for if data is a file path"""
             try:
                 return os.path.isfile(self.data)
             except:
                 return False
         
+        # Any open file-like objects in 'r' mode will have a read attribute
         if hasattr(self.data, 'read'):
             self.open_file = self.data
             self.to_close = False
         
-        elif isfile(self.data):
+        # If data is path to a file, open the file in binary mode
+        elif isfile():
             self.open_file = open(self.data, 'rb')
             self.to_close = True
         
-        elif not isinstance(self.data, str):
+        # If data is bytes, read using BytesIO
+        elif isinstance(self.data, bytes):
             self.open_file = BytesIO(self.data)
             self.to_close = True
             
+        # If data is str, encode and read using BytesIO
         else:
             self.open_file = BytesIO(self.data.encode('utf-8'))
             self.to_close = True
@@ -758,5 +777,6 @@ class uber_open_rmode():
         return self.open_file
     
     def __exit__(self, *args):
+        """Close file if one was opened."""
         if self.to_close:
             self.open_file.close()
