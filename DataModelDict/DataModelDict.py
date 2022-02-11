@@ -1,24 +1,24 @@
 """DataModelDict class for representing data models equivalently in Python, JSON, and XML."""
 
 # Standard Python libraries
-import os
 import json
-from io import BytesIO, open
+import io
+from pathlib import Path
 from copy import deepcopy
 from collections import OrderedDict
 
 # https://github.com/martinblech/xmltodict
 import xmltodict
 
-__version__ = '0.9.9'
-__all__ = ['DataModelDict']
+# Local imports
+from .uber_open_rmode import uber_open_rmode
 
-class DataModelDict(OrderedDict, object):
+class DataModelDict(OrderedDict):
     """Class for handling json/xml equivalent data structures."""
     
     def __init__(self, *args, **kwargs):
         """
-        Initilizes a DataModelDict.
+        Initializes a DataModelDict.
         If one args is given and it is a str or file-like object, then load()
         is called.
         Otherwise, the OrderedDict initializer is called.
@@ -37,13 +37,11 @@ class DataModelDict(OrderedDict, object):
         -------
         DataModelDict
         """
-        
+        # Initialize self as OrderedDict
         OrderedDict.__init__(self)
         
-        # If string or file-like object, call load
-        if len(args) == 1 and (isinstance(args[0], (str, bytes)) or 
-                               hasattr(args[0], 'read') or
-                               hasattr(args[0], 'as_posix')):
+        # Call load for supported types
+        if len(args) == 1 and isinstance(args[0], (str, bytes, Path, io.IOBase)):
             self.load(args[0], **kwargs)
         
         # Otherwise, call update (from OrderedDict)
@@ -65,6 +63,7 @@ class DataModelDict(OrderedDict, object):
         any
             The value of the element associated with key or the path list.
         """
+        # Handle path keys
         if isinstance(key, list):
             value = self
             keys = deepcopy(key)
@@ -85,6 +84,7 @@ class DataModelDict(OrderedDict, object):
             Dictionary key.  If key is a list, then subsequent keys down the
             structure are accessed.
         """
+        # Handle path keys
         if isinstance(key, list):
             term = self
             keys = deepcopy(key)
@@ -108,13 +108,16 @@ class DataModelDict(OrderedDict, object):
             The value to add to the dictionary key.  If key exists, the
             element is converted to a list if needed and value is appended.
         """
-        if key in self:
+        if key in self:            
             if isinstance(self[key], list):
+                # Append new value to existing list
                 self[key].append(value)
             else:
+                # Convert existing value to list and append new value
                 self[key] = [self[key]]
                 self[key].append(value)
         else:
+            # Set new value
             self[key] = value
     
     def find(self, key, yes={}, no={}):
@@ -444,8 +447,7 @@ class DataModelDict(OrderedDict, object):
             format is not equal to 'xml' or 'json'.
         """
         
-        # Read in model as file-like object if file, model string, or file
-        # path string
+        # Read contents
         with uber_open_rmode(model) as model:
             
             # If format is not specified, identify from first character
@@ -462,7 +464,7 @@ class DataModelDict(OrderedDict, object):
                 elif test == '<':
                     format = 'xml'
                 else:
-                    raise ValueError('JSON/XML content not found')
+                    raise ValueError('could not identify content - give path as pathlib.Path and/or specify format')
                 
                 model.seek(0)
             
@@ -480,7 +482,7 @@ class DataModelDict(OrderedDict, object):
                                             dict_constructor = DataModelDict))
             
             else:
-                raise ValueError("Invalid format. Only 'json', 'xml', or None values supported.")
+                raise ValueError(f"invalid format '{format}'")
     
     def json(self, fp=None, *args, **kwargs):
         """
@@ -720,63 +722,3 @@ class DataModelDict(OrderedDict, object):
                 else:
                     yield [k]
 
-
-class uber_open_rmode():
-    """
-    Context manager for reading data from file-like objects, file names,
-    and data strings in the same manner.
-    """
-    
-    def __init__(self, data):
-        """
-        Initialize context manager.
-        
-        Parameters
-        ----------
-        data : file-like object or str
-            Specifies what content to read.
-        """
-        self.data = data
-        self.open_file = None
-        self.to_close = False
-        
-    def __enter__(self):
-        """
-        Performs the different open interactions.  If data has a read attribute
-        then use data directly.  Else if data is a file path, open it.  Else
-        pass the data into a BytesIO object. 
-        """
-        
-        def isfile():
-            """Test for if data is a file path"""
-            try:
-                return os.path.isfile(self.data)
-            except:
-                return False
-        
-        # Any open file-like objects in 'r' mode will have a read attribute
-        if hasattr(self.data, 'read'):
-            self.open_file = self.data
-            self.to_close = False
-        
-        # If data is path to a file, open the file in binary mode
-        elif isfile():
-            self.open_file = open(self.data, 'rb')
-            self.to_close = True
-        
-        # If data is bytes, read using BytesIO
-        elif isinstance(self.data, bytes):
-            self.open_file = BytesIO(self.data)
-            self.to_close = True
-            
-        # If data is str, encode and read using BytesIO
-        else:
-            self.open_file = BytesIO(self.data.encode('utf-8'))
-            self.to_close = True
-        
-        return self.open_file
-    
-    def __exit__(self, *args):
-        """Close file if one was opened."""
-        if self.to_close:
-            self.open_file.close()
