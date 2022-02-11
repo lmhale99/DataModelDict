@@ -5,6 +5,9 @@
 *.egg-info/
 *.egg
 
+# Sphinx build junk
+.doctrees
+
 # PyPI distribution data
 dist/
 dist-old/
