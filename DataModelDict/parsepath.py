@@ -1,4 +1,5 @@
-def parsepath(pathstr, delimiter='.', openbracket='[', closebracket=']'):
+def parsepath(pathstr: str, delimiter:str='.', openbracket:str='[',
+              closebracket:str=']') -> list:
     """
     Takes a path as a string and parses it into a list of terms.
     
@@ -12,6 +13,11 @@ def parsepath(pathstr, delimiter='.', openbracket='[', closebracket=']'):
         The opening indicator of list indices.
     closebracket : str
         The closing indicator of list indices.
+    
+    Returns
+    -------
+    list
+        The path as a list.
     """
     # Split by delimiter
     path = pathstr.split(delimiter)

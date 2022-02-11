@@ -1,4 +1,5 @@
-def joinpath(path, delimiter='.', openbracket='[', closebracket=']'):
+def joinpath(path:list, delimiter:str='.', openbracket:str='[',
+             closebracket:str=']') -> str:
     """
     Takes a path as a list and transforms it into a string.
     
@@ -12,6 +13,10 @@ def joinpath(path, delimiter='.', openbracket='[', closebracket=']'):
         The opening indicator of list indices.
     closebracket : str
         The closing indicator of list indices.
+    
+    Returns
+    -------
+    The path as a delimited string.
     """
     # Start str as first element of path list
     pathstr = path[0]
