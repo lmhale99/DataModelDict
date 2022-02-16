@@ -7,6 +7,7 @@
 
 # Sphinx build junk
 .doctrees
+.sphinx_source/_build
 
 # PyPI distribution data
 dist/
@@ -19,3 +20,7 @@ __pycache__
 
 # Upload bash script
 upload_package.bash
+
+
+# visual studio code metadata
+.vscode/
