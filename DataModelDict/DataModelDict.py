@@ -6,6 +6,7 @@ import io
 from pathlib import Path
 from copy import deepcopy
 from collections import OrderedDict
+from typing import Union, Optional, Any, Generator
 
 # https://github.com/martinblech/xmltodict
 import xmltodict
@@ -48,7 +49,7 @@ class DataModelDict(OrderedDict):
         else:
             self.update(*args, **kwargs)
     
-    def __getitem__(self, key):
+    def __getitem__(self, key:Union[str, list]) -> Any:
         """
         Extends OrderedDict.__getitem__() to handle path lists as keys.
         
@@ -74,7 +75,7 @@ class DataModelDict(OrderedDict):
         else:
             return OrderedDict.__getitem__(self, key)
     
-    def __setitem__(self, key, value):
+    def __setitem__(self, key:Union[str, list], value:Any):
         """
         Extends OrderedDict.__setitem__() to handle path lists as keys.
         
@@ -83,6 +84,8 @@ class DataModelDict(OrderedDict):
         key : str or list
             Dictionary key.  If key is a list, then subsequent keys down the
             structure are accessed.
+        value : any
+            The value to set.
         """
         # Handle path keys
         if isinstance(key, list):
@@ -95,7 +98,7 @@ class DataModelDict(OrderedDict):
         else:
             return OrderedDict.__setitem__(self, key, value)
     
-    def append(self, key, value):
+    def append(self, key:str, value:Any):
         """
         Adds a value for element key by either adding key to the dictionary or
         appending the value as a list to any current value.
@@ -120,7 +123,7 @@ class DataModelDict(OrderedDict):
             # Set new value
             self[key] = value
     
-    def find(self, key, yes={}, no={}):
+    def find(self, key:str, yes:dict={}, no:dict={}) ->Any:
         """
         Return the value of a subelement at any level uniquely identified by
         the specified conditions.
@@ -156,7 +159,7 @@ class DataModelDict(OrderedDict):
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')
     
-    def aslist(self, key):
+    def aslist(self, key:str)->list:
         """
         Gets the value of a dictionary key as a list.  Useful for elements
         whose values may or may not be lists.
@@ -174,7 +177,7 @@ class DataModelDict(OrderedDict):
         """
         return [val for val in self.iteraslist(key)]
     
-    def path(self, key, yes={}, no={}):
+    def path(self, key:str, yes:dict={}, no:dict={})->list:
         """
         Return the path list of a subelement at any level uniquely identified
         by the specified conditions. Issues an error if either no match, or
@@ -211,7 +214,7 @@ class DataModelDict(OrderedDict):
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')
     
-    def finds(self, key, yes={}, no={}):
+    def finds(self, key:str, yes:dict={}, no:dict={})->list:
         """
         Finds the values of all subelements at any level identified by the
         specified conditions.
@@ -234,7 +237,7 @@ class DataModelDict(OrderedDict):
         """
         return [val for val in self.iterfinds(key, yes, no)] 
     
-    def paths(self, key, yes={}, no={}):
+    def paths(self, key:str, yes:dict={}, no:dict={})->list:
         """
         Return a list of all path lists of all elements at any level
         identified by the specified conditions.
@@ -257,7 +260,7 @@ class DataModelDict(OrderedDict):
         """
         return [val for val in self.iterpaths(key, yes, no)]
     
-    def iteraslist(self, key):
+    def iteraslist(self, key:str) -> Generator[Any, None, None]:
         """
         Iterates through the values of a dictionary key.  Useful for elements
         whose values may or may not be lists.
@@ -280,7 +283,7 @@ class DataModelDict(OrderedDict):
             else:
                 yield self[key]
     
-    def iterfinds(self, key, yes={}, no={}):
+    def iterfinds(self, key:str, yes:dict={}, no:dict={}) -> Generator[Any, None, None]:
         """
         Iterates over the values of all subelements at any level identified by
         the specified conditions.
@@ -345,7 +348,7 @@ class DataModelDict(OrderedDict):
             if match:
                 yield subelement
     
-    def iterpaths(self, key, yes={}, no={}):
+    def iterpaths(self, key:str, yes:dict={}, no:dict={})-> Generator[list, None, None]:
         """
         Iterates over the path lists to all elements at any level identified
         by the specified conditions.
@@ -425,7 +428,7 @@ class DataModelDict(OrderedDict):
         for path in self.__gen_dict_valuepath(self):
             yield path
     
-    def load(self, model, format=None):
+    def load(self, model:Union[str, io.IOBase], format:Optional[str]=None):
         """
         Read in values from a json/xml string or file-like object.
         
@@ -484,7 +487,7 @@ class DataModelDict(OrderedDict):
             else:
                 raise ValueError(f"invalid format '{format}'")
     
-    def json(self, fp=None, *args, **kwargs):
+    def json(self, fp:Optional[io.IOBase]=None, *args, **kwargs) -> Optional[str]:
         """
         Converts the DataModelDict to JSON content.
         
@@ -509,7 +512,7 @@ class DataModelDict(OrderedDict):
         else:
             json.dump(self, fp=fp, *args, **kwargs)
     
-    def xml(self, fp=None, indent=None, **kwargs):
+    def xml(self, fp:Optional[io.IOBase]=None, indent:Union[int, str, None]=None, **kwargs) -> Optional[str]:
         """
         Return the DataModelDict as XML content.
         
@@ -548,7 +551,7 @@ class DataModelDict(OrderedDict):
                                  preprocessor = self.__xml_preprocessor(),
                                  **kwargs)
     
-    def __xml_postprocessor(self, convert_NaN=True):
+    def __xml_postprocessor(self, convert_NaN:bool=True):
         """
         Internal method that defines the xmltodict postprocessor function.
         """
@@ -604,7 +607,7 @@ class DataModelDict(OrderedDict):
         
         return postprocessor
     
-    def __xml_preprocessor(self, convert_NaN=True):
+    def __xml_preprocessor(self, convert_NaN:bool=True):
         """
         Internal method that defines the xmltodict preprocessor function.
         """
