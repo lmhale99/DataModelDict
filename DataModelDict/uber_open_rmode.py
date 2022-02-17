@@ -38,7 +38,7 @@ def uber_open_rmode(data:Union[str, bytes, Path, io.IOBase]) -> io.IOBase:
         """Tests if data is a file path. Invalid paths return False instead of raising errors"""
         try:
             return Path(data).is_file()
-        except ValueError:
+        except:
             return False
     
     # Check if data is a file-like object
