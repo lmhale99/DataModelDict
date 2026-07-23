@@ -1,19 +1,20 @@
-# compiled python modules
-*.pyc
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 
-# Python egg metadata for atomman
-*.egg-info/
-*.egg
+# Virtual environments
+.venv
 
 # Sphinx build junk
 .doctrees
 .sphinx_source/_build
 
 # PyPI distribution data
-dist/
 dist-old/
-build/
-__pycache__
 
 # Notebook checkpoints and data
 .ipynb_checkpoints/
@@ -21,6 +22,9 @@ __pycache__
 # Upload bash script
 upload_package.bash
 
-
 # visual studio code metadata
 .vscode/
+
+# uv supporting files
+uv.lock
+.python-version

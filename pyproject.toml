@@ -1,6 +1,56 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "DataModelDict"
+version = "0.9.10"
+description = "Class allowing for data models equivalently represented as Python dictionaries, JSON, and XML"
+readme = "README.rst"
+requires-python = ">=3.7"
+dependencies = [
+    "xmltodict"
 ]
-build-backend = "setuptools.build_meta"
+authors = [
+  {name = "Lucas Hale", email = "lucas.hale@nist.gov"}
+]
+license = "NIST-Software"
+keywords = [
+    'json',
+    'xml',
+    'dictionary',
+]
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Science/Research',
+    'Natural Language :: English',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
+    'Topic :: File Formats :: JSON',
+    'Topic :: Text Processing :: Markup :: XML',
+]
+      
+[project.urls]
+Homepage = "https://github.com/usnistgov/DataModelDict/"
+Documentation = "https://github.com/usnistgov/DataModelDict/blob/master/DataModelDict%20Class%20Demonstration.ipynb"
+Repository = "https://github.com/usnistgov/DataModelDict.git"
+
+[build-system]
+requires = ["uv_build>=0.11.26,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "DataModelDict"
+module-root = ""
+
+[dependency-groups]
+dev = [
+    "esbonio>=0.16.1",
+    "pytest>=7.4.4",
+    "sphinx>=5.3.0",
+    "sphinxcontrib-restbuilder>=0.3",
+]
