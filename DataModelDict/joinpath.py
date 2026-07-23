@@ -1,5 +1,7 @@
-def joinpath(path:list, delimiter:str='.', openbracket:str='[',
-             closebracket:str=']') -> str:
+def joinpath(path: list,
+             delimiter: str = '.',
+             openbracket: str ='[',
+             closebracket: str =']') -> str:
     """
     Takes a path as a list and transforms it into a string.
     

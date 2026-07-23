@@ -17,7 +17,9 @@ from .uber_open_rmode import uber_open_rmode
 class DataModelDict(OrderedDict):
     """Class for handling json/xml equivalent data structures."""
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 *args,
+                 **kwargs):
         """
         Initializes a DataModelDict.
         If one args is given and it is a str or file-like object, then load()
@@ -49,7 +51,8 @@ class DataModelDict(OrderedDict):
         else:
             self.update(*args, **kwargs)
     
-    def __getitem__(self, key:Union[str, list]) -> Any:
+    def __getitem__(self,
+                    key: Union[str, list]) -> Any:
         """
         Extends OrderedDict.__getitem__() to handle path lists as keys.
         
@@ -75,7 +78,9 @@ class DataModelDict(OrderedDict):
         else:
             return OrderedDict.__getitem__(self, key)
     
-    def __setitem__(self, key:Union[str, list], value:Any):
+    def __setitem__(self,
+                    key: Union[str, list],
+                    value: Any):
         """
         Extends OrderedDict.__setitem__() to handle path lists as keys.
         
@@ -98,7 +103,9 @@ class DataModelDict(OrderedDict):
         else:
             return OrderedDict.__setitem__(self, key, value)
     
-    def append(self, key:str, value:Any):
+    def append(self,
+               key: str,
+               value: Any):
         """
         Adds a value for element key by either adding key to the dictionary or
         appending the value as a list to any current value.
@@ -123,7 +130,10 @@ class DataModelDict(OrderedDict):
             # Set new value
             self[key] = value
     
-    def find(self, key:str, yes:dict={}, no:dict={}) ->Any:
+    def find(self,
+             key: str,
+             yes: dict={},
+             no: dict={}) -> Any:
         """
         Return the value of a subelement at any level uniquely identified by
         the specified conditions.
@@ -159,7 +169,8 @@ class DataModelDict(OrderedDict):
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')
     
-    def aslist(self, key:str)->list:
+    def aslist(self,
+               key: str) -> list:
         """
         Gets the value of a dictionary key as a list.  Useful for elements
         whose values may or may not be lists.
@@ -177,7 +188,10 @@ class DataModelDict(OrderedDict):
         """
         return [val for val in self.iteraslist(key)]
     
-    def path(self, key:str, yes:dict={}, no:dict={})->list:
+    def path(self,
+             key: str,
+             yes: dict={},
+             no: dict={}) -> list:
         """
         Return the path list of a subelement at any level uniquely identified
         by the specified conditions. Issues an error if either no match, or
@@ -214,7 +228,10 @@ class DataModelDict(OrderedDict):
         else:
             raise ValueError('Multiple matching subelements found for key (and kwargs).')
     
-    def finds(self, key:str, yes:dict={}, no:dict={})->list:
+    def finds(self,
+              key: str,
+              yes: dict={},
+              no: dict={}) -> list:
         """
         Finds the values of all subelements at any level identified by the
         specified conditions.
@@ -237,7 +254,10 @@ class DataModelDict(OrderedDict):
         """
         return [val for val in self.iterfinds(key, yes, no)] 
     
-    def paths(self, key:str, yes:dict={}, no:dict={})->list:
+    def paths(self,
+              key: str,
+              yes: dict={},
+              no: dict={}) -> list:
         """
         Return a list of all path lists of all elements at any level
         identified by the specified conditions.
@@ -260,7 +280,8 @@ class DataModelDict(OrderedDict):
         """
         return [val for val in self.iterpaths(key, yes, no)]
     
-    def iteraslist(self, key:str) -> Generator[Any, None, None]:
+    def iteraslist(self,
+                   key: str) -> Generator[Any, None, None]:
         """
         Iterates through the values of a dictionary key.  Useful for elements
         whose values may or may not be lists.
@@ -283,7 +304,10 @@ class DataModelDict(OrderedDict):
             else:
                 yield self[key]
     
-    def iterfinds(self, key:str, yes:dict={}, no:dict={}) -> Generator[Any, None, None]:
+    def iterfinds(self,
+                  key: str,
+                  yes: dict={},
+                  no: dict={}) -> Generator[Any, None, None]:
         """
         Iterates over the values of all subelements at any level identified by
         the specified conditions.
@@ -348,7 +372,10 @@ class DataModelDict(OrderedDict):
             if match:
                 yield subelement
     
-    def iterpaths(self, key:str, yes:dict={}, no:dict={})-> Generator[list, None, None]:
+    def iterpaths(self,
+                  key: str,
+                  yes: dict={},
+                  no: dict={}) -> Generator[list, None, None]:
         """
         Iterates over the path lists to all elements at any level identified
         by the specified conditions.
@@ -428,13 +455,15 @@ class DataModelDict(OrderedDict):
         for path in self.__gen_dict_valuepath(self):
             yield path
     
-    def load(self, model:Union[str, io.IOBase], format:Optional[str]=None):
+    def load(self,
+             model: Union[str, bytes, Path, io.IOBase],
+             format: Optional[str] = None):
         """
         Read in values from a json/xml string or file-like object.
         
         Parameters
         ----------
-        model : str or file-like object
+        model : str, bytes, Path or file-like object
             The XML or JSON content to read.  This is allowed to be either a
             file path, a string representation, or an open file-like object in
             byte mode.
@@ -487,7 +516,8 @@ class DataModelDict(OrderedDict):
             else:
                 raise ValueError(f"invalid format '{format}'")
     
-    def json(self, fp:Optional[io.IOBase]=None, *args, **kwargs) -> Optional[str]:
+    def json(self,
+             fp: Optional[io.IOBase] = None, *args, **kwargs) -> Optional[str]:
         """
         Converts the DataModelDict to JSON content.
         
@@ -512,7 +542,10 @@ class DataModelDict(OrderedDict):
         else:
             json.dump(self, fp=fp, *args, **kwargs)
     
-    def xml(self, fp:Optional[io.IOBase]=None, indent:Union[int, str, None]=None, **kwargs) -> Optional[str]:
+    def xml(self,
+            fp: Optional[io.IOBase] = None,
+            indent : Union[int, str, None] = None,
+            **kwargs) -> Optional[str]:
         """
         Return the DataModelDict as XML content.
         
@@ -551,7 +584,7 @@ class DataModelDict(OrderedDict):
                                  preprocessor = self.__xml_preprocessor(),
                                  **kwargs)
     
-    def __xml_postprocessor(self, convert_NaN:bool=True):
+    def __xml_postprocessor(self, convert_NaN: bool = True):
         """
         Internal method that defines the xmltodict postprocessor function.
         """
@@ -588,7 +621,7 @@ class DataModelDict(OrderedDict):
             
             try:
                 # Try to convert to integer
-                intval = int(value)
+                int_value = int(value)
             except ValueError:
                 try:
                     # Try to return as float
@@ -597,17 +630,17 @@ class DataModelDict(OrderedDict):
                     # Return unchanged as str
                     return key, value
             else:
-                # Check if int of value is reversable back to str
-                if str(intval) == value:
+                # Check if int of value is reversible back to str
+                if str(int_value) == value:
                     # Return as int
-                    return key, intval
+                    return key, int_value
                 else:
                     # Return unchanged as str
                     return key, value
         
         return postprocessor
     
-    def __xml_preprocessor(self, convert_NaN:bool=True):
+    def __xml_preprocessor(self, convert_NaN: bool = True):
         """
         Internal method that defines the xmltodict preprocessor function.
         """
@@ -633,7 +666,7 @@ class DataModelDict(OrderedDict):
                 return key, value
             
             # Iterate through list/tuple values
-            elif isinstance(value, (list,tuple)):
+            elif isinstance(value, list):
                 for i in range(len(value)):
                     value[i] = preprocessor(key, value[i])[1]
                 return key, value
@@ -644,13 +677,21 @@ class DataModelDict(OrderedDict):
                 return key, value
             
             # Parse and convert strings
-            elif isinstance(value, (str, bytes)):
+            elif isinstance(value, str):
                 if value in allow_NaN:
                     return key, allow_NaN[value]
                 else:
                     value = value.replace('\n', '\\n')
                     value = value.replace('\t', '\\t')
                     value = value.replace('\r', '\\r')
+                    return key, str(value)
+            elif isinstance(value, bytes):
+                if value in allow_NaN:
+                    return key, allow_NaN[value]
+                else:
+                    value = value.replace(b'\n', b'\\n')
+                    value = value.replace(b'\t', b'\\t')
+                    value = value.replace(b'\r', b'\\r')
                     return key, str(value)
             else:
                 raise TypeError('unknown value type ' + repr(value))

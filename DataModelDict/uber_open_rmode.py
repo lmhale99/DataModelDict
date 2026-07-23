@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Union
+from collections.abc import Generator
 import io
 from contextlib import contextmanager
 
 @contextmanager
-def uber_open_rmode(data:Union[str, bytes, Path, io.IOBase]) -> io.IOBase:
+def uber_open_rmode(data: Union[str, bytes, Path, io.IOBase]) -> Generator[io.IOBase, None, None]:
     """
     Provides a uniform means of reading data from files, file-like objects,
     and string/bytes content.  

@@ -1,5 +1,7 @@
-def parsepath(pathstr: str, delimiter:str='.', openbracket:str='[',
-              closebracket:str=']') -> list:
+def parsepath(pathstr: str,
+              delimiter: str='.',
+              openbracket: str='[',
+              closebracket: str=']') -> list:
     """
     Takes a path as a string and parses it into a list of terms.
     
