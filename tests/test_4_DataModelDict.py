@@ -190,3 +190,92 @@ class TestDataModelDict():
         model['test'].append('ordinal', 'third')
         assert model['test'].get('ordinal', None) == ['first', 'second', 'third']
         assert model['test'].aslist('ordinal') == ['first', 'second', 'third']
+
+    def test_move(self):
+        # Move uses different options based on high index, low index
+        # And before/after index identification depends on left/right shifts
+
+        # Create simple model for testing
+        model = DM('{"a":"a","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","h":"h","i":"i"}')
+
+        # move by index to low i
+        model.move('f', index=1)
+        model2 = DM('{"a":"a","f":"f","b":"b","c":"c","d":"d","e":"e","g":"g","h":"h","i":"i"}')
+        assert model == model2
+
+        # move by index to high and negative i
+        model.move('b', index=-2)
+        model2 = DM('{"a":"a","f":"f","c":"c","d":"d","e":"e","g":"g","h":"h","b":"b","i":"i"}')
+        assert model == model2
+
+        # move before to the left
+        model.move('h', before='c')
+        model2 = DM('{"a":"a","f":"f","h":"h","c":"c","d":"d","e":"e","g":"g","b":"b","i":"i"}')
+        assert model == model2
+
+        # move before to the right
+        model.move('a', before='g')
+        model2 = DM('{"f":"f","h":"h","c":"c","d":"d","e":"e","a":"a","g":"g","b":"b","i":"i"}')
+        assert model == model2
+        
+        # move after to the left
+        model.move('g', after='f')
+        model2 = DM('{"f":"f","g":"g","h":"h","c":"c","d":"d","e":"e","a":"a","b":"b","i":"i"}')
+        assert model == model2
+
+        # move after to the right
+        model.move('h', after='b')
+        model2 = DM('{"f":"f","g":"g","c":"c","d":"d","e":"e","a":"a","b":"b","h":"h","i":"i"}')
+        assert model == model2
+
+        # Check errors
+        with raises(KeyError):
+            model.move('h', after='z')
+        with raises(KeyError):
+            model.move('h', before='z')
+        with raises(IndexError):
+            model.move('h', index=9)
+        with raises(IndexError):
+            model.move('h', index=-10)
+
+    def test_append_with_move(self):
+        # Create simple model for testing
+        model = DM('{"a":"a","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","h":"h","i":"i"}')
+
+        # Append new keys with known references
+        model.append('j', 'j', before='b')
+        model2 = DM('{"a":"a","j":"j","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","h":"h","i":"i"}')
+        assert model == model2
+
+        model.append('k', 'k', after='g')
+        model2 = DM('{"a":"a","j":"j","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","k":"k","h":"h","i":"i"}')
+        assert model == model2
+
+        # Append new keys with unknown references
+        model.append('l', 'l', before='z')
+        model2 = DM('{"a":"a","j":"j","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","k":"k","h":"h","i":"i","l":"l"}')
+        assert model == model2
+
+        model.append('m', 'm', after='z')
+        model2 = DM('{"a":"a","j":"j","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","k":"k","h":"h","i":"i","l":"l","m":"m"}')
+        assert model == model2
+
+        # Append to old keys and move based on references
+        model.append('j', 'j', before='l')
+        model2 = DM('{"a":"a","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","k":"k","h":"h","i":"i","j":["j","j"],"l":"l","m":"m"}')
+        assert model == model2
+
+        model.append('k', 'k', after='j')
+        model2 = DM('{"a":"a","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","h":"h","i":"i","j":["j","j"],"k":["k","k"],"l":"l","m":"m"}')
+        assert model == model2
+
+    def test_reorder(self):
+        # Create simple model for testing
+        model = DM('{"a":"a","b":"b","c":"c","d":"d","e":"e","f":"f","g":"g","h":"h","i":"i"}')
+
+        # Specify reorder keys with extras and missing values
+        model.reorder(['a','c','e','g','i','k','l','n'])
+
+        # Check final order: 'a', 'c', 'e', 'g' reordered, others ignored
+        model2 = DM('{"a":"a","c":"c","e":"e","g":"g","i":"i","b":"b","d":"d","f":"f","h":"h"}')
+        assert model == model2

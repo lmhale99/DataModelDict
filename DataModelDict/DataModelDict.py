@@ -105,7 +105,9 @@ class DataModelDict(OrderedDict):
     
     def append(self,
                key: str,
-               value: Any):
+               value: Any,
+               before: Optional[str] = None,
+               after: Optional[str] = None):
         """
         Adds a value for element key by either adding key to the dictionary or
         appending the value as a list to any current value.
@@ -117,6 +119,14 @@ class DataModelDict(OrderedDict):
         value
             The value to add to the dictionary key.  If key exists, the
             element is converted to a list if needed and value is appended.
+        before : str, None
+            Another key in the dict that the specified key is to be located
+            just before.  If the before key is not in the dict, the main key
+            will not be moved. Cannot be combined with after.
+        after : str, None
+            Another key in the dict that the specified key is to be located
+            just after.  If the after key is not in the dict, the main key
+            will not be moved. Cannot be combined with before.
         """
         if key in self:            
             if isinstance(self[key], list):
@@ -129,7 +139,106 @@ class DataModelDict(OrderedDict):
         else:
             # Set new value
             self[key] = value
-    
+
+        # Move key according to before and after
+        if (before is not None and before in self) or (after is not None and after in self):
+            self.move(key, before=before, after=after)
+
+    def move(self,
+             key: str,
+             index: Optional[int] = None,
+             before: Optional[str] = None,
+             after: Optional[str] = None):
+        """
+        Moves a key in the dict to a specified position. All other keys will
+        retain their relative orders.
+
+        Parameters
+        ----------
+        key : str
+            The dictionary key to move.
+        index : int or None
+            The index position where key is to be moved to.  Cannot be combined
+            with before or after.
+        before : str, None
+            Another key in the dict that the specified key is to be located
+            just before.  Cannot be combined with position or after.
+        after : str, None
+            Another key in the dict that the specified key is to be located
+            just after.  Cannot be combined with position or before.
+        """
+        # Find current position of key
+        keys = list(self.keys())
+        current_index = keys.index(key)
+
+        if before is not None:
+            if index is not None:
+                raise ValueError('index and before cannot both be given')
+            if after is not None:
+                raise ValueError('before and after cannot both be given')
+            if key == before:
+                raise ValueError('key and before cannot be the same key')
+            if before not in self:
+                raise KeyError(f'before key {before} not in dict')
+            before_index = list(self.keys()).index(before)
+            if current_index < before_index:
+                index = before_index - 1
+            else:
+                index = before_index
+
+        elif after is not None:
+            if index is not None:
+                raise ValueError('index and after cannot both be given')
+            if key == after:
+                raise ValueError('key and after cannot be the same key')
+            if after not in self:
+                raise KeyError(f'after key {after} not in dict')
+            after_index = list(self.keys()).index(after)
+            if current_index < after_index:
+                index = after_index
+            else:
+                index = after_index + 1
+
+        elif index is None:
+            raise ValueError('index, before, or after must be given')
+
+        elif not isinstance(index, int):
+            raise TypeError('index must be an int')
+
+        else:
+            if index < -len(keys) or index >= len(keys):
+                raise IndexError('index out of range for dict keys')
+            elif index < 0:
+                index = len(keys) + index
+        
+        if index == current_index:
+            return
+
+        if index < len(keys) / 2:
+            self.move_to_end(key, last=False)
+            keys = list(self.keys())
+            for k in keys[index:0:-1]:
+                self.move_to_end(k, last=False)
+        else:
+            self.move_to_end(key)
+            keys = list(self.keys())
+            for k in keys[index:-1]:
+                self.move_to_end(k)        
+        
+    def reorder(self, keys: list):
+        """
+        Reorders the dict's keys.  
+
+        Parameters
+        ----------
+        keys : list
+            The dict keys in the order you want them reordered to.  Any keys 
+            in the dict not listed will be moved to the end.
+        """
+        for key in keys[::-1]:
+            if key in self:
+                self.move_to_end(key, last=False)
+
     def find(self,
              key: str,
              yes: dict={},
