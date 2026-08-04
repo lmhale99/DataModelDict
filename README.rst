@@ -197,12 +197,12 @@ Code Documentation
             key exists, the element is converted to a list if needed
             and value is appended.
 
-         *  **before** (*str**, **None*) – Another key in the dict
+         *  **before** (*str*, *None*) – Another key in the dict
             that the specified key is to be located just before.  If
             the before key is not in the dict, the main key will not
             be moved. Cannot be combined with after.
 
-         *  **after** (*str**, **None*) – Another key in the dict that
+         *  **after** (*str*, *None*) – Another key in the dict that
             the specified key is to be located just after.  If the
             after key is not in the dict, the main key will not be
             moved. Cannot be combined with before.
@@ -326,7 +326,7 @@ Code Documentation
       Converts the DataModelDict to JSON content.
 
       :Parameters:
-         *  **fp** (*file-like object** or **None**, **optional*) – An
+         *  **fp** (*file-like object* or *None*, *optional*) – An
             open file to write the content to.  If None (default),
             then the content is returned as a str.
 
@@ -348,12 +348,12 @@ Code Documentation
       Read in values from a json/xml string or file-like object.
 
       :Parameters:
-         *  **model** (*str**, **bytes**, **Path** or **file-like
+         *  **model** (*str*, *bytes*, *Path* or *file-like
             object*) – The XML or JSON content to read.  This is
             allowed to be either a file path, a string representation,
             or an open file-like object in byte mode.
 
-         *  **format** (*str** or **None**, **optional*) – Allows for
+         *  **format** (*str* or *None*, *optional*) – Allows for
             the format of the content to be explicitly stated (‘xml’
             or ‘json’).  If None (default), will try to determine
             which format based on if the first character of model is
@@ -373,15 +373,15 @@ Code Documentation
       :Parameters:
          *  **key** (*str*) – The dictionary key to move.
 
-         *  **index** (*int** or **None*) – The index position where
+         *  **index** (*int* or *None*) – The index position where
             key is to be moved to.  Cannot be combined with before or
             after.
 
-         *  **before** (*str**, **None*) – Another key in the dict
+         *  **before** (*str*, *None*) – Another key in the dict
             that the specified key is to be located just before.
             Cannot be combined with position or after.
 
-         *  **after** (*str**, **None*) – Another key in the dict that
+         *  **after** (*str*, *None*) – Another key in the dict that
             the specified key is to be located just after.  Cannot be
             combined with position or before.
 
@@ -446,11 +446,11 @@ Code Documentation
       Return the DataModelDict as XML content.
 
       :Parameters:
-         *  **fp** (*file-like object** or **None**, **optional*) – An
+         *  **fp** (*file-like object* or *None*, *optional*) – An
             open file to write the content to.  If None (default),
             then the content is returned as a str.
 
-         *  **indent** (*int**, **str** or **None**, **optional*) – If
+         *  **indent** (*int*, *str* or *None*, *optional*) – If
             int, number of spaces to indent lines.  If str, will use
             that as the indentation. If None (default), the content
             will be inline.
@@ -515,7 +515,7 @@ Generator[IOBase, None, None]**
    objects, and string/bytes content.
 
    :Parameters:
-      **data** (*file-like object**, **file path**, or **str/bytes
+      **data** (*file-like object*, *file path*, or *str/bytes
       file content*) – The data that will be opened for reading.
 
    :Returns:
