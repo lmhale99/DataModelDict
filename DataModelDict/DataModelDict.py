@@ -593,9 +593,16 @@ class DataModelDict(OrderedDict):
             
             # If format is not specified, identify from first character
             if format is None:
-                test = ''
-                while test == '':
-                    test = model.readline().strip()
+                # uber_open_rmode always gives a binary stream, so compare
+                # against bytes. Comparing against '' let the loop fall through
+                # after a single read, and a leading blank line then indexed an
+                # empty result.
+                test = b''
+                while test == b'':
+                    line = model.readline()
+                    if line == b'':
+                        raise ValueError('could not identify content - give path as pathlib.Path and/or specify format')
+                    test = line.strip()
                 try:
                     test = chr(test[0])
                 except:
