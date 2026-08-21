@@ -279,3 +279,24 @@ class TestDataModelDict():
         # Check final order: 'a', 'c', 'e', 'g' reordered, others ignored
         model2 = DM('{"a":"a","c":"c","e":"e","g":"g","i":"i","b":"b","d":"d","f":"f","h":"h"}')
         assert model == model2
+    def test_leading_blank_lines(self, tmpdir):
+        """Test format detection when content starts with blank lines"""
+        # The format sniffer reads past blank lines before looking at the first
+        # character, so a file that starts with a newline still loads.
+        assert DM('\n' + self.jsoncompact) == self.model
+        assert DM('\n\n  \n' + self.jsoncompact) == self.model
+        # an XML declaration cannot be preceded by whitespace, so use a bare
+        # element to check the sniffer reaches '<'
+        assert DM('\n<a>1</a>') == DM('<a>1</a>')
+
+        jsonfile = Path(tmpdir, 'leading-blank.json')
+        with open(jsonfile, 'w', encoding='UTF-8') as f:
+            f.write('\n' + self.jsoncompact)
+        assert DM(jsonfile) == self.model
+
+    def test_unidentifiable_content(self):
+        """Test that content with no format raises ValueError, not IndexError"""
+        with raises(ValueError):
+            DM('')
+        with raises(ValueError):
+            DM('   \n  \n')
